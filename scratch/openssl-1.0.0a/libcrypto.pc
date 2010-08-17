@@ -1,0 +1,11 @@
+prefix=/opt/opscode/embedded/openssl/openssl-1.0.0a
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: OpenSSL-libcrypto
+Description: OpenSSL cryptography library
+Version: 1.0.0a
+Requires: 
+Libs: -L${libdir} -lcrypto -L/opt/opscode/embedded/zlib/zlib-1.2.5/lib 
+Cflags: -I${includedir} 
