@@ -1,0 +1,63 @@
+Build a fat binary, from scratch
+
+###
+# Install Build Time Dependencies
+###
+
+###
+# Zlib
+###
+wget http://zlib.net/zlib-1.2.5.tar.gz
+./configure --prefix=/opt/opscode/embedded/zlib/zlib-1.2.5
+make
+make install
+
+###
+# Berkeley DB
+###
+cd db-5.0.26.NC
+cd build-unix
+../dist/configure --prefix=/opt/opscode/embedded/db/db-5.0.26
+
+###
+# GDBM
+###
+cd gdbm-1.8.3
+./configure --prefix=/opt/opscode/embedded/gdbm/gdbm-1.8.3
+edit Makefile, set BINOWN and BINGRP
+make install
+
+###
+# OpenSSL
+###
+cd openssl-1.0.0a
+./config --prefix=/opt/opscode/embedded/openssl/openssl-1.0.0a -L/opt/opscode/embedded/zlib/zlib-1.2.5/lib zlib-dynamic shared
+make
+make install
+
+###
+# Libedit
+###
+cd libedit-20100424-3.0
+./configure --prefix=/opt/opscode/embedded/libedit/libedit-20100424-3.0
+make
+make install
+
+###
+# Ruby 1.9.2-rc2
+###
+cd ./scratch
+wget http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-rc2.tar.bz2
+tar jxvf ruby-1.9.2-rc2.tar.bz2
+cd ruby-1.9.2-rc2
+./configure --prefix=/opt/opscode
+make
+make install
+
+###
+# Install Chef
+###
+/opt/opscode/bin/gem install chef -n /opt/opscode/bin
+
+###
+# 
