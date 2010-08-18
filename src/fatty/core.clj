@@ -1,25 +1,115 @@
-(ns fatty.core)
+(ns fatty.core
+  (:use [clojure.contrib.shell-out :only [sh]]
+        [clojure.contrib.logging :only [log]]
+        [clojure.contrib.io :only [make-parents file-str]])
+  (:require [clojure.contrib.string :as str]))
 
 (defstruct software-desc :source :build_subdir :steps)
 
+(def fatty-home-dir (. System getProperty "user.dir"))
+(def fatty-source-dir (file-str fatty-home-dir "/source"))
+(def fatty-build-dir (file-str fatty-home-dir "/build"))
+ 
 (defn software
   "Create a new software description"
   [& map]
   (apply struct-map software-desc map))
+ 
+(def zlib (software :source "zlib-1.2.5"
+                    :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                            ["make"]
+                            ["sudo" "make" "install"]]))
+ 
+(def db (software :source "db-5.0.26.NC"
+                  :build-subdir "build_unix"
+                  :steps [["../dist/configure" "--prefix=/opt/opscode/embedded"]
+                          ["make"]
+                          ["sudo" "make" "install"]]))
 
-(def zlib (software :source "zlib-1.2.5.tar.gz"
-                    :steps ["./configure --prefix=/opt/opscode/embedded"
-                            "make"
-                            "make install"])
+(def gdbm (software :source "gdbm-1.8.3"
+                    :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                            ["perl" "-pi" "-e" "s/BINOWN = bin/BINOWN = root/g" "Makefile"]
+                            ["perl" "-pi" "-e" "s/BINGRP = bin/BINGRP = wheel/g" "Makefile"]
+                            ["make"]
+                            ["sudo" "make" "install"]]))
 
-(def db (software :source "db-5.0.26.NC.tar.gz"
-          :build_subdir "build-unix"
-          :steps ["./configure --prefix=/opt/opscode/embedded"
-                  "make"
-                  "make install"])
+(def ncurses (software :source "ncurses-5.7"
+                       :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-shared" "--with-normal" "--without-debug"]
+                               ["make"]
+                               ["sudo" "make" "install"]]))
 
-(def gdbm (software :source "gdbm-1.8.3.tar.gz"
-          :steps ["./configure --prefix=/opt/opscode/embedded"
-                  "make"
-                  "make install"])
+(def readline (software :source "readline-5.2"
+                        :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                                ["make"]
+                                ["sudo" "make" "install"]]))
+
+(def openssl (software :source "openssl-0.9.8o"
+                       :steps [["./config" "--prefix=/opt/opscode/embedded" "-L/opt/opscode/embedded/lib" "-I/opt/opscode/embedded/include" "zlib-dynamic" "shared"]
+                               ["bash" "-c" "make"]
+                               ["sudo" "make" "install"]]))
+
+(def ruby (software :source "ruby-1.9.2-p0"
+                        :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared"]
+                                ["make"]
+                                ["sudo" "make" "install"]]))
+
+(defn- log-sh-result
+  [status true-log false-log]
+  (if (= (status :exit) 0)
+    (do
+      (log :info true-log)
+      true)
+    (do
+      (log :error false-log)
+      (log :error (str "STDOUT: " (status :out)))
+      (log :error (str "STDERR: " (status :err)))
+      (System/exit 2))))
+
+(defn- copy-source-to-build
+  "Copy the source directory to the build directory"
+  [soft]
+  (let [status (sh "cp" "-r" (.getPath (file-str fatty-source-dir "/" (soft :source))) (.getPath fatty-build-dir) :return-map true)]
+    (log-sh-result status 
+                   (str "Copied " (soft :source) " to build directory.")
+                   (str "Failed to copy " (soft :source) " to build directory."))))
+
+(defn clean
+  "Clean a previous build directory"
+  [soft]
+  (let [status (sh "rm" "-rf" (.getPath (file-str fatty-build-dir "/" (soft :source))) :return-map true)]
+    (log-sh-result status
+                   (str "Removed old build directory for " (soft :source))
+                   (str "Failed to remove old build directory for " (soft :source)))))
+
+(defn prep
+  "Prepare to build a software package by copying its source to a pristine build directory"
+  [soft]
+  (do
+    (.mkdirs fatty-build-dir)
+    (copy-source-to-build soft)))
+
+(defn execute-step
+  "Run a build step"
+  [step path]
+  (let [status (apply sh (flatten [step :return-map true :dir path]))]
+    (log-sh-result status
+                   (str "Build Command succeeded: " step)
+                   (str "Build Command failed: " step))))
+
+(defn run-steps
+  "Run the steps for a given piece of software"
+  [soft]
+  (log :info (str "Building " (soft :source)))
+  (for [step (soft :steps)] 
+    (execute-step step (.getPath (file-str fatty-build-dir "/" 
+                                           (if (= (contains? soft :build-subdir) true)
+                                             (str (soft :source) "/" (soft :build-subdir))
+                                             (soft :source)))))))
+
+(defn build 
+  "Build a software package - runs prep for you"
+  [soft]
+  (clean soft)
+  (prep soft)
+  (run-steps soft))
 
