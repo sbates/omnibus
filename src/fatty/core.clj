@@ -42,7 +42,7 @@
                                 ["sudo" "make" "install"]]))
 
 (def openssl (software :source "openssl-0.9.8o"
-                       :steps [["./config" "--prefix=/opt/opscode/embedded" "-L/opt/opscode/embedded/lib" "-I/opt/opscode/embedded/include" "zlib-dynamic" "shared"]
+                       :steps [["./config" "--prefix=/opt/opscode/embedded" "--with-zlib-lib=/opt/opscode/embedded/lib" "--with-zlib-include=/opt/opscode/embedded/include" "zlib-dynamic" "shared"]
                                ["bash" "-c" "make"]
                                ["sudo" "make" "install"]]))
 
