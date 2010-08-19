@@ -42,14 +42,14 @@
                                 ["sudo" "make" "install"]]))
 
 (def openssl (software :source "openssl-0.9.8o"
-                       :steps [["./config" "--prefix=/opt/opscode/embedded" "--with-zlib-lib=/opt/opscode/embedded/lib" "--with-zlib-include=/opt/opscode/embedded/include" "zlib-dynamic" "shared"]
+                       :steps [["./config" "--prefix=/opt/opscode/embedded" "--with-zlib-lib=/opt/opscode/embedded/lib" "--with-zlib-include=/opt/opscode/embedded/include" "zlib" "no-shared"]
                                ["bash" "-c" "make"]
                                ["sudo" "make" "install"]]))
 
 (def ruby (software :source "ruby-1.9.2-p0"
-                        :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared"]
-                                ["make"]
-                                ["sudo" "make" "install"]]))
+                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared"]
+                            ["make"]
+                            ["sudo" "make" "install"]]))
 
 (defn- log-sh-result
   [status true-log false-log]
