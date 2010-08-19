@@ -47,9 +47,11 @@
                                ["sudo" "make" "install"]]))
 
 (def ruby (software :source "ruby-1.9.2-p0"
-                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared"]
+                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared" "--disable-install-doc"]
                             ["make"]
                             ["sudo" "make" "install"]]))
+
+(def chef (software :steps [["/opt/embedded/bin/gems" "install" "chef" "-n" "/opt/opscode/bin"]]))
 
 (defn- log-sh-result
   [status true-log false-log]
@@ -74,17 +76,19 @@
 (defn clean
   "Clean a previous build directory"
   [soft]
-  (let [status (sh "rm" "-rf" (.getPath (file-str fatty-build-dir "/" (soft :source))) :return-map true)]
-    (log-sh-result status
-                   (str "Removed old build directory for " (soft :source))
-                   (str "Failed to remove old build directory for " (soft :source)))))
+  (if (= (contains? soft :source))
+    (let [status (sh "rm" "-rf" (.getPath (file-str fatty-build-dir "/" (soft :source))) :return-map true)]
+      (log-sh-result status
+                     (str "Removed old build directory for " (soft :source))
+                     (str "Failed to remove old build directory for " (soft :source))))))
 
 (defn prep
   "Prepare to build a software package by copying its source to a pristine build directory"
   [soft]
-  (do
-    (.mkdirs fatty-build-dir)
-    (copy-source-to-build soft)))
+  (if (= (contains? soft :source))
+    (do
+      (.mkdirs fatty-build-dir)
+      (copy-source-to-build soft))))
 
 (defn execute-step
   "Run a build step"
@@ -102,7 +106,9 @@
     (execute-step step (.getPath (file-str fatty-build-dir "/" 
                                            (if (= (contains? soft :build-subdir) true)
                                              (str (soft :source) "/" (soft :build-subdir))
-                                             (soft :source)))))))
+                                             (if (= (contains? soft :source) true)
+                                               (soft :source)
+                                               ""))))))) ; It's cool, we just want the top build directory if there is no source
 
 (defn build 
   "Build a software package - runs prep for you"
