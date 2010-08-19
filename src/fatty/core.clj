@@ -51,7 +51,8 @@
                             ["make"]
                             ["sudo" "make" "install"]]))
 
-(def chef (software :steps [["/opt/embedded/bin/gems" "install" "chef" "-n" "/opt/opscode/bin"]]))
+(def chef (software :source "chef"
+            :steps [["/opt/embedded/bin/gems" "install" "chef" "-n" "/opt/opscode/bin"]]))
 
 (defn- log-sh-result
   [status true-log false-log]
