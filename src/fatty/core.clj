@@ -103,12 +103,11 @@
   [soft]
   (log :info (str "Building " (soft :source)))
   (for [step (soft :steps)] 
-    (execute-step step (.getPath (file-str fatty-build-dir "/" 
-                                           (if (not (= (soft :build-subdir) nil))
-                                             (str (soft :source) "/" (soft :build-subdir))
-                                             (if (not (= (soft :source) nil))
-                                               (soft :source)
-                                               ""))))))) ; It's cool, we just want the top build directory if there is no source
+    (execute-step step (.getPath (if (= (soft :source) nil)
+                                   (file-str fatty-build-dir)
+                                   (if (= (soft :build-subdir) nil)
+                                     (file-str fatty-build-dir "/" (soft :source)
+                                     (file-str fatty-build-dir "/" (soft :source) "/" (soft :build-subdir)))))))))
 
 (defn build 
   "Build a software package - runs prep for you"
