@@ -76,7 +76,7 @@
 (defn clean
   "Clean a previous build directory"
   [soft]
-  (if (= (contains? soft :source))
+  (if (not (= (soft :source) nil))
     (let [status (sh "rm" "-rf" (.getPath (file-str fatty-build-dir "/" (soft :source))) :return-map true)]
       (log-sh-result status
                      (str "Removed old build directory for " (soft :source))
@@ -85,7 +85,7 @@
 (defn prep
   "Prepare to build a software package by copying its source to a pristine build directory"
   [soft]
-  (if (= (contains? soft :source))
+  (if (not (= (soft :source) nil))
     (do
       (.mkdirs fatty-build-dir)
       (copy-source-to-build soft))))
@@ -104,9 +104,9 @@
   (log :info (str "Building " (soft :source)))
   (for [step (soft :steps)] 
     (execute-step step (.getPath (file-str fatty-build-dir "/" 
-                                           (if (= (contains? soft :build-subdir) true)
+                                           (if (not (= (soft :build-subdir) nil))
                                              (str (soft :source) "/" (soft :build-subdir))
-                                             (if (= (contains? soft :source) true)
+                                             (if (not (= (soft :source) nil))
                                                (soft :source)
                                                ""))))))) ; It's cool, we just want the top build directory if there is no source
 
