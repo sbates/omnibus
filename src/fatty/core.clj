@@ -152,14 +152,15 @@
   (let [ohai-data (read-json (sh "ohai"))]
     {:os (get ohai-data :os), :machine (get-in ohai-data [:kernel :machine])}))
 
+(defn build-tarball
+  [project-name os-data]
+  (let [status (sh "tar" "czf" (file-str fatty-pkg-dir "/" project-name "-" (os-data :os) "-" (os-data :machine) ".tar.gz") (file-str "/opt/opscode"))]
+    (log-sh-result status
+                   (str "Created package for " project-name " on " (os-data :os) " machine arch " (os-data :machine))
+                   (str "Failed to create package for " project-name " on " (os-data :os) " machine arch " (os-data :machine)))))
+
 (defn build-fat-binary
   "Build a fat binary"
   [project-name]
   (dorun (for [software-pkg (project-map project-name)] (build (software-map software-pkg))))
-  (let [os-data (get-os-and-machine)]
-    (do
-      (let [status (sh "tar" "czf" (file-str fatty-pkg-dir "/" project-name "-" (os-data :os) "-" (os-data :machine) ".tar.gz") (file-str "/opt/opscode"))]
-        (log-sh-result status
-                       (str "Created package for " project-name " on " (os-data :os) " machine arch " (os-data :machine))
-                       (str "Failed to create package for " project-name " on " (os-data :os) " machine arch " (os-data :machine)))))))
-
+  (let [os-data (get-os-and-machine)] (build-tarball)))
