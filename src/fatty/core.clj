@@ -1,76 +1,86 @@
 (ns fatty.core
   (:use [clojure.contrib.shell-out :only [sh]]
         [clojure.contrib.logging :only [log]]
+        [clojure.contrib.json :onle [read-json]]
         [clojure.contrib.io :only [make-parents file-str]])
   (:require [clojure.contrib.string :as str]))
-
-(defstruct software-desc :source :build_subdir :steps)
 
 (def fatty-home-dir (. System getProperty "user.dir"))
 (def fatty-source-dir (file-str fatty-home-dir "/source"))
 (def fatty-build-dir (file-str fatty-home-dir "/build"))
+(def fatty-pkg-dir (file-str fatty-home-dir "/pkg"))
+
+(def software-map (ref {}))
+
+(defstruct software-desc :name :source :build_subdir :steps)
  
 (defn software
   "Create a new software description"
-  [& map]
-  (apply struct-map software-desc map))
- 
-(def zlib (software :source "zlib-1.2.5"
-                    :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+  [software-name & instruction-map]
+  (let [new-map (conj instruction-map software-name :name)]
+    (dosync (ref-set software-map (assoc @software-map software-name (apply struct-map software-desc new-map))))))
+
+(software "zlib"  :source "zlib-1.2.5" :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                                               ["make"]
+                                               ["sudo" "make" "install"]])
+
+(software "libiconv" :source "libiconv-1.13.1"
+                     :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                             ["make"]
+                             ["sudo" "make" "install"]])
+
+(software "db" :source "db-5.0.26.NC"
+               :build-subdir "build_unix"
+               :steps [["../dist/configure" "--prefix=/opt/opscode/embedded"]
+                       ["make"]
+                       ["sudo" "make" "install"]])
+
+(software "gdbm" :source "gdbm-1.8.3"
+                 :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                         ["make"]
+                         ["sudo" "make" "install"]])
+
+(software "ncurses" :source "ncurses-5.7"
+                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-shared" "--with-normal" "--without-debug"]
                             ["make"]
-                            ["sudo" "make" "install"]]))
+                            ["sudo" "make" "install"]])
 
-(def libiconv (software :source "libiconv-1.13.1"
-                    :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+(software "ncurses" :source "readline-5.2"
+                     :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                             ["make"]
+                             ["sudo" "make" "install"]])
+
+(software "openssl" :source "openssl-0.9.8o"
+                    :steps [["./config" "--prefix=/opt/opscode/embedded" "--with-zlib-lib=/opt/opscode/embedded/lib" "--with-zlib-include=/opt/opscode/embedded/include" "zlib" "shared"]
+                            ["bash" "-c" "make"]
+                            ["sudo" "make" "install"]])
+
+(software "libxml2" :source "libxml2-2.7.7"
+                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-zlib=/opt/opscode/embedded" "--with-readline=/opt/opscode/embedded" "--with-iconv=/opt/opscode/embedded"]
                             ["make"]
-                            ["sudo" "make" "install"]]))
- 
-(def db (software :source "db-5.0.26.NC"
-                  :build-subdir "build_unix"
-                  :steps [["../dist/configure" "--prefix=/opt/opscode/embedded"]
-                          ["make"]
-                          ["sudo" "make" "install"]]))
+                            ["sudo" "make" "install"]])
 
-(def gdbm (software :source "gdbm-1.8.3"
-                    :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+(software "libxslt" :source "libxslt-1.1.26"
+                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-libxml-prefix=/opt/opscode/embedded" "--with-libxml-include-prefix=/opt/opscode/embedded/include" "--with-libxml-libs-prefix=/opt/opscode/embedded/lib"]
                             ["make"]
-                            ["sudo" "make" "install"]]))
+                            ["sudo" "make" "install"]])
 
-(def ncurses (software :source "ncurses-5.7"
-                       :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-shared" "--with-normal" "--without-debug"]
-                               ["make"]
-                               ["sudo" "make" "install"]]))
+(software "ruby" :source "ruby-1.9.2-p0"
+                 :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared" "--disable-install-doc"]
+                         ["make"]
+                         ["sudo" "make" "install"]])
 
-(def readline (software :source "readline-5.2"
-                        :steps [["./configure" "--prefix=/opt/opscode/embedded"]
-                                ["make"]
-                                ["sudo" "make" "install"]]))
+(software "chef" :source "chef"
+                 :steps [["sudo" "/opt/opscode/embedded/bin/gem" "install" "chef" "fog" "highline" "net-ssh-multi" "-n" "/opt/opscode/bin"]])
 
-(def openssl (software :source "openssl-0.9.8o"
-                       :steps [["./config" "--prefix=/opt/opscode/embedded" "--with-zlib-lib=/opt/opscode/embedded/lib" "--with-zlib-include=/opt/opscode/embedded/include" "zlib" "shared"]
-                               ["bash" "-c" "make"]
-                               ["sudo" "make" "install"]]))
+(def project-map (ref {}))
 
+(defn project
+  "Create a new project"
+  [project-name build-order]
+  (dosync (ref-set project-map (assoc @project-map project-name build-order))))
 
-(def libxml2 (software :source "libxml2-2.7.7"
-                       :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-zlib=/opt/opscode/embedded" "--with-readline=/opt/opscode/embedded" "--with-iconv=/opt/opscode/embedded"]
-                               ["make"]
-                               ["sudo" "make" "install"]]))
-
-(def libxslt (software :source "libxslt-1.1.26"
-                       :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-libxml-prefix=/opt/opscode/embedded" "--with-libxml-include-prefix=/opt/opscode/embedded/include" "--with-libxml-libs-prefix=/opt/opscode/embedded/lib"]
-                               ["make"]
-                               ["sudo" "make" "install"]]))
-
-(def ruby (software :source "ruby-1.9.2-p0"
-                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared" "--disable-install-doc"]
-                            ["make"]
-                            ["sudo" "make" "install"]]))
-
-(def chef (software :source "chef"
-            :steps [["sudo" "/opt/opscode/embedded/bin/gem" "install" "chef" "fog" "highline" "net-ssh-multi" "-n" "/opt/opscode/bin"]]))
-
-
+(project "chef-full" [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ruby" "chef" ])
 
 (defn- log-sh-result
   [status true-log false-log]
@@ -121,12 +131,12 @@
   "Run the steps for a given piece of software"
   [soft]
   (log :info (str "Building " (soft :source)))
-  (for [step (soft :steps)] 
+  (dorun (for [step (soft :steps)] 
     (execute-step step (.getPath (if (= (soft :source) nil)
                                    (file-str fatty-build-dir)
                                    (if (= (soft :build-subdir) nil)
                                      (file-str fatty-build-dir "/" (soft :source))
-                                     (file-str fatty-build-dir "/" (soft :source) "/" (soft :build-subdir))))))))
+                                     (file-str fatty-build-dir "/" (soft :source) "/" (soft :build-subdir)))))))))
 
 (defn build 
   "Build a software package - runs prep for you"
@@ -135,4 +145,21 @@
     (clean soft)
     (prep soft)
     (run-steps soft)))
+
+(defn get-os-and-machine
+  "Use Ohai to get our Operating System and Machine Architecture"
+  []
+  (let [ohai-data (read-json (sh "ohai"))]
+    {:os (get ohai-data :os), :machine (get-in ohai-data [:kernel :machine])}))
+
+(defn build-fat-binary
+  "Build a fat binary"
+  [project-name]
+  (dorun (for [software-pkg (project-map project-name)] (build (software-map software-pkg))))
+  (let [os-data (get-os-and-machine)]
+    (do
+      (let [status (sh "tar" "czf" (file-str fatty-pkg-dir "/" project-name "-" (os-data :os) "-" (os-data :machine) ".tar.gz") (file-str "/opt/opscode"))]
+        (log-sh-result status
+                       (str "Created package for " project-name " on " (os-data :os) " machine arch " (os-data :machine))
+                       (str "Failed to create package for " project-name " on " (os-data :os) " machine arch " (os-data :machine)))))))
 
