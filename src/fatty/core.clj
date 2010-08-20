@@ -107,13 +107,14 @@
     (execute-step step (.getPath (if (= (soft :source) nil)
                                    (file-str fatty-build-dir)
                                    (if (= (soft :build-subdir) nil)
-                                     (file-str fatty-build-dir "/" (soft :source)
-                                     (file-str fatty-build-dir "/" (soft :source) "/" (soft :build-subdir)))))))))
+                                     (file-str fatty-build-dir "/" (soft :source))
+                                     (file-str fatty-build-dir "/" (soft :source) "/" (soft :build-subdir))))))))
 
 (defn build 
   "Build a software package - runs prep for you"
   [soft]
-  (clean soft)
-  (prep soft)
-  (run-steps soft))
+  (do
+    (clean soft)
+    (prep soft)
+    (run-steps soft)))
 
