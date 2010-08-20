@@ -52,7 +52,9 @@
                             ["sudo" "make" "install"]]))
 
 (def chef (software :source "chef"
-            :steps [["sudo" "/opt/opscode/embedded/bin/gem" "install" "chef" "-n" "/opt/opscode/bin"]]))
+            :steps [["sudo" "/opt/opscode/embedded/bin/gem" "install" "chef" "fog" "highline" "net-ssh-multi" "-n" "/opt/opscode/bin"]]))
+
+
 
 (defn- log-sh-result
   [status true-log false-log]
