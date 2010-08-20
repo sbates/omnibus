@@ -19,6 +19,11 @@
                     :steps [["./configure" "--prefix=/opt/opscode/embedded"]
                             ["make"]
                             ["sudo" "make" "install"]]))
+
+(def libiconv (software :source "libiconv-1.13.1"
+                    :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                            ["make"]
+                            ["sudo" "make" "install"]]))
  
 (def db (software :source "db-5.0.26.NC"
                   :build-subdir "build_unix"
@@ -44,6 +49,17 @@
 (def openssl (software :source "openssl-0.9.8o"
                        :steps [["./config" "--prefix=/opt/opscode/embedded" "--with-zlib-lib=/opt/opscode/embedded/lib" "--with-zlib-include=/opt/opscode/embedded/include" "zlib" "shared"]
                                ["bash" "-c" "make"]
+                               ["sudo" "make" "install"]]))
+
+
+(def libxml2 (software :source "libxml2-2.7.7"
+                       :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-zlib=/opt/opscode/embedded" "--with-readline=/opt/opscode/embedded" "--with-iconv=/opt/opscode/embedded"]
+                               ["make"]
+                               ["sudo" "make" "install"]]))
+
+(def libxslt (software :source "libxslt-1.1.26"
+                       :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-libxml-prefix=/opt/opscode/embedded" "--with-libxml-include-prefix=/opt/opscode/embedded/include" "--with-libxml-libs-prefix=/opt/opscode/embedded/lib"]
+                               ["make"]
                                ["sudo" "make" "install"]]))
 
 (def ruby (software :source "ruby-1.9.2-p0"
