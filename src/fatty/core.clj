@@ -162,5 +162,5 @@
 (defn build-fat-binary
   "Build a fat binary"
   [project-name]
-  (dorun (for [software-pkg (get-in project-map [project-name :build-order])] (build (software-map software-pkg))))
-  (build-tarball project-name (get-in project-map [project-name :version]) (get-os-and-machine)))
+  (dorun (for [software-pkg (get-in @project-map [project-name :build-order])] (build (software-map software-pkg))))
+  (build-tarball project-name (get-in @project-map [project-name :version]) (get-os-and-machine)))
