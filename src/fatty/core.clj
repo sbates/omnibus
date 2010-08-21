@@ -77,10 +77,10 @@
 
 (defn project
   "Create a new project"
-  [project-name build-order]
-  (dosync (ref-set project-map (assoc @project-map project-name build-order))))
+  [project-name version build-order]
+  (dosync (ref-set project-map (assoc @project-map project-name { :version version :build-order build-order }))))
 
-(project "chef-full" [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ruby" "chef" ])
+(project "chef-full" "0.9.8" [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ruby" "chef" ])
 
 (defn- log-sh-result
   [status true-log false-log]
@@ -153,14 +153,14 @@
     {:os (get ohai-data :os), :machine (get-in ohai-data [:kernel :machine])}))
 
 (defn build-tarball
-  [project-name os-data]
-  (let [status (sh "tar" "czf" (file-str fatty-pkg-dir "/" project-name "-" (os-data :os) "-" (os-data :machine) ".tar.gz") (file-str "/opt/opscode"))]
+  [project-name version os-data]
+  (let [status (sh "tar" "czf" (.toString (file-str fatty-pkg-dir "/" project-name "-" version "-" (os-data :os) "-" (os-data :machine) ".tar.gz")) (.toString (file-str "/opt" "/opscode")) :return-map true)]
     (log-sh-result status
-                   (str "Created package for " project-name " on " (os-data :os) " machine arch " (os-data :machine))
-                   (str "Failed to create package for " project-name " on " (os-data :os) " machine arch " (os-data :machine)))))
+                   (str "Created tarball package for " project-name " on " (os-data :os) " " (os-data :machine))
+                   (str "Failed to create tarball package for " project-name " on " (os-data :os) " " (os-data :machine)))))
 
 (defn build-fat-binary
   "Build a fat binary"
   [project-name]
-  (dorun (for [software-pkg (project-map project-name)] (build (software-map software-pkg))))
-  (let [os-data (get-os-and-machine)] (build-tarball)))
+  (dorun (for [software-pkg (get-in project-map [project-name :build-order])] (build (software-map software-pkg))))
+  (build-tarball project-name (get-in project-map [project-name :version]) (get-os-and-machine)))
