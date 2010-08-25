@@ -1,7 +1,7 @@
 (ns fatty.core
-  (:use [clojure.contrib.shell-out :only [sh]]
+  (:use [clojure.java.shell :only [sh]]
         [clojure.contrib.logging :only [log]]
-        [clojure.contrib.json :onle [read-json]]
+        [clojure.contrib.json]
         [clojure.contrib.io :only [make-parents file-str]])
   (:require [clojure.contrib.string :as str]))
 
@@ -9,6 +9,7 @@
 (def fatty-source-dir (file-str fatty-home-dir "/source"))
 (def fatty-build-dir (file-str fatty-home-dir "/build"))
 (def fatty-pkg-dir (file-str fatty-home-dir "/pkg"))
+(def fatty-makeself-dir (file-str fatty-home-dir "/makeself"))
 
 (def software-map (ref {}))
 
@@ -62,7 +63,7 @@
 
 (software "libxslt" :source "libxslt-1.1.26"
                     :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-libxml-prefix=/opt/opscode/embedded" "--with-libxml-include-prefix=/opt/opscode/embedded/include" "--with-libxml-libs-prefix=/opt/opscode/embedded/lib"]
-                            ["make"]
+                            ["./buildit.sh"]
                             ["sudo" "make" "install"]])
 
 (software "ruby" :source "ruby-1.9.2-p0"
@@ -70,8 +71,17 @@
                          ["make"]
                          ["sudo" "make" "install"]])
 
+(software "rsync" :source "rsync-3.0.7"
+                 :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                         ["make"]
+                         ["sudo" "make" "install"]])
+
 (software "chef" :source "chef"
-                 :steps [["sudo" "/opt/opscode/embedded/bin/gem" "install" "chef" "fog" "highline" "net-ssh-multi" "-n" "/opt/opscode/bin"]])
+                 :steps [["sudo" "/opt/opscode/embedded/bin/gem" "install" "chef" "fog" "highline" "net-ssh-multi" "-n" "/opt/opscode/bin" "--no-rdoc" "--no-ri"]
+                         ["sudo" "cp" "setup.rb" "/opt/opscode"]
+                         ["sudo" "chmod" "755" "/opt/opscode/setup.rb"]
+                         ["sudo" "rm" "-rf" "/opt/opscode/embedded/docs"]
+                         ["sudo" "chown" "-R" "root.root" "/opt/opscode"]])
 
 (def project-map (ref {}))
 
@@ -80,7 +90,7 @@
   [project-name version build-order]
   (dosync (ref-set project-map (assoc @project-map project-name { :version version :build-order build-order }))))
 
-(project "chef-full" "0.9.8" [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ruby" "chef" ])
+(project "chef-full" "0.9.8" [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ruby" "rsync" "chef" ])
 
 (defn- log-sh-result
   [status true-log false-log]
@@ -97,7 +107,7 @@
 (defn- copy-source-to-build
   "Copy the source directory to the build directory"
   [soft]
-  (let [status (sh "cp" "-r" (.getPath (file-str fatty-source-dir "/" (soft :source))) (.getPath fatty-build-dir) :return-map true)]
+  (let [status (sh "cp" "-r" (.getPath (file-str fatty-source-dir "/" (soft :source))) (.getPath fatty-build-dir))]
     (log-sh-result status 
                    (str "Copied " (soft :source) " to build directory.")
                    (str "Failed to copy " (soft :source) " to build directory."))))
@@ -106,7 +116,7 @@
   "Clean a previous build directory"
   [soft]
   (if (not (= (soft :source) nil))
-    (let [status (sh "rm" "-rf" (.getPath (file-str fatty-build-dir "/" (soft :source))) :return-map true)]
+    (let [status (sh "rm" "-rf" (.getPath (file-str fatty-build-dir "/" (soft :source))) )]
       (log-sh-result status
                      (str "Removed old build directory for " (soft :source))
                      (str "Failed to remove old build directory for " (soft :source))))))
@@ -122,7 +132,7 @@
 (defn execute-step
   "Run a build step"
   [step path]
-  (let [status (apply sh (flatten [step :return-map true :dir path]))]
+  (let [status (apply sh (flatten [step :dir path]))]
     (log-sh-result status
                    (str "Build Command succeeded: " step)
                    (str "Build Command failed: " step))))
@@ -149,18 +159,34 @@
 (defn get-os-and-machine
   "Use Ohai to get our Operating System and Machine Architecture"
   []
-  (let [ohai-data (read-json (sh "ohai"))]
+  (let [ohai-data (read-json ((sh "ohai") :out))]
     {:os (get ohai-data :os), :machine (get-in ohai-data [:kernel :machine])}))
 
 (defn build-tarball
   [project-name version os-data]
-  (let [status (sh "tar" "czf" (.toString (file-str fatty-pkg-dir "/" project-name "-" version "-" (os-data :os) "-" (os-data :machine) ".tar.gz")) (.toString (file-str "/opt" "/opscode")) :return-map true)]
+  (let [status (sh "tar" "czf" (.toString (file-str fatty-pkg-dir "/" project-name "-" version "-" (os-data :os) "-" (os-data :machine) ".tar.gz")) "opscode" :dir "/opt")]
     (log-sh-result status
                    (str "Created tarball package for " project-name " on " (os-data :os) " " (os-data :machine))
                    (str "Failed to create tarball package for " project-name " on " (os-data :os) " " (os-data :machine)))))
+
+(defn build-makeself
+  [project-name version os-data]
+  (let [status (sh (.toString (file-str fatty-makeself-dir "/makeself.sh")) 
+                   "--gzip" 
+                   "/opt/opscode" 
+                   (.toString (file-str fatty-pkg-dir "/" project-name "-" version "-" (os-data :os) "-" (os-data :machine) ".sh"))
+                   (str "'Opscode " project-name " " version "'")
+                   "./setup.rb"
+                   :dir fatty-home-dir)]
+    (log-sh-result status
+                   (str "Created shell archive for " project-name " on " (os-data :os) " " (os-data :machine))
+                   (str "Failed to create shell archive for " project-name " on " (os-data :os) " " (os-data :machine)))))
 
 (defn build-fat-binary
   "Build a fat binary"
   [project-name]
   (dorun (for [software-pkg (get-in @project-map [project-name :build-order])] (build (software-map software-pkg))))
-  (build-tarball project-name (get-in @project-map [project-name :version]) (get-os-and-machine)))
+  (let [os-data (get-os-and-machine) project-version (get-in @project-map [project-name :version])]
+    (do
+      (build-tarball project-name project-version os-data)
+      (build-makeself project-name project-version os-data))))
