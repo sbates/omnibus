@@ -1,5 +1,5 @@
-(defproject fatty "1.0.0-SNAPSHOT"
-  :description "FIXME: write"
+(defproject fatty "0.1.0"
+  :description "Builds 'fat' binaries, with all their dependencies, into tarballs and self-installing shell scripts."
   :dev-dependencies [[vimclojure/server "2.2.0-SNAPSHOT"]]
   :dependencies [[org.clojure/clojure "1.2.0-RC3"]
                  [org.clojure/clojure-contrib "1.2.0-RC3"]

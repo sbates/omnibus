@@ -21,76 +21,12 @@
   (let [new-map (conj instruction-map software-name :name)]
     (dosync (ref-set software-map (assoc @software-map software-name (apply struct-map software-desc new-map))))))
 
-(software "zlib"  :source "zlib-1.2.5" :steps [["./configure" "--prefix=/opt/opscode/embedded"]
-                                               ["make"]
-                                               ["sudo" "make" "install"]])
-
-(software "libiconv" :source "libiconv-1.13.1"
-                     :steps [["./configure" "--prefix=/opt/opscode/embedded"]
-                             ["make"]
-                             ["sudo" "make" "install"]])
-
-(software "db" :source "db-5.0.26.NC"
-               :build-subdir "build_unix"
-               :steps [["../dist/configure" "--prefix=/opt/opscode/embedded"]
-                       ["make"]
-                       ["sudo" "make" "install"]])
-
-(software "gdbm" :source "gdbm-1.8.3"
-                 :steps [["./configure" "--prefix=/opt/opscode/embedded"]
-                         ["make"]
-                         ["sudo" "make" "install"]])
-
-(software "ncurses" :source "ncurses-5.7"
-                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-shared" "--with-normal" "--without-debug"]
-                            ["make"]
-                            ["sudo" "make" "install"]])
-
-(software "ncurses" :source "readline-5.2"
-                     :steps [["./configure" "--prefix=/opt/opscode/embedded"]
-                             ["make"]
-                             ["sudo" "make" "install"]])
-
-(software "openssl" :source "openssl-0.9.8o"
-                    :steps [["./config" "--prefix=/opt/opscode/embedded" "--with-zlib-lib=/opt/opscode/embedded/lib" "--with-zlib-include=/opt/opscode/embedded/include" "zlib" "shared"]
-                            ["bash" "-c" "make"]
-                            ["sudo" "make" "install"]])
-
-(software "libxml2" :source "libxml2-2.7.7"
-                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-zlib=/opt/opscode/embedded" "--with-readline=/opt/opscode/embedded" "--with-iconv=/opt/opscode/embedded"]
-                            ["make"]
-                            ["sudo" "make" "install"]])
-
-(software "libxslt" :source "libxslt-1.1.26"
-                    :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-libxml-prefix=/opt/opscode/embedded" "--with-libxml-include-prefix=/opt/opscode/embedded/include" "--with-libxml-libs-prefix=/opt/opscode/embedded/lib"]
-                            ["./buildit.sh"]
-                            ["sudo" "make" "install"]])
-
-(software "ruby" :source "ruby-1.9.2-p0"
-                 :steps [["./configure" "--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared" "--disable-install-doc"]
-                         ["make"]
-                         ["sudo" "make" "install"]])
-
-(software "rsync" :source "rsync-3.0.7"
-                 :steps [["./configure" "--prefix=/opt/opscode/embedded"]
-                         ["make"]
-                         ["sudo" "make" "install"]])
-
-(software "chef" :source "chef"
-                 :steps [["sudo" "/opt/opscode/embedded/bin/gem" "install" "chef" "fog" "highline" "net-ssh-multi" "-n" "/opt/opscode/bin" "--no-rdoc" "--no-ri"]
-                         ["sudo" "cp" "setup.rb" "/opt/opscode"]
-                         ["sudo" "chmod" "755" "/opt/opscode/setup.rb"]
-                         ["sudo" "rm" "-rf" "/opt/opscode/embedded/docs"]
-                         ["sudo" "chown" "-R" "root.root" "/opt/opscode"]])
-
 (def project-map (ref {}))
 
 (defn project
   "Create a new project"
   [project-name version build-order]
   (dosync (ref-set project-map (assoc @project-map project-name { :version version :build-order build-order }))))
-
-(project "chef-full" "0.9.8" [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ruby" "rsync" "chef" ])
 
 (defn- log-sh-result
   [status true-log false-log]
@@ -132,10 +68,11 @@
 (defn execute-step
   "Run a build step"
   [step path]
-  (let [status (apply sh (flatten [step :dir path]))]
-    (log-sh-result status
-                   (str "Build Command succeeded: " step)
-                   (str "Build Command failed: " step))))
+  (if (not (= step nil))
+    (let [status (apply sh (flatten [step :dir path]))]
+      (log-sh-result status
+                     (str "Build Command succeeded: " step)
+                     (str "Build Command failed: " step)))))
 
 (defn run-steps
   "Run the steps for a given piece of software"
@@ -162,6 +99,8 @@
   (let [ohai-data (read-json ((sh "ohai") :out))]
     {:os (get ohai-data :os), :machine (get-in ohai-data [:kernel :machine])}))
 
+(def os-and-machine (ref (get-os-and-machine)))
+
 (defn build-tarball
   [project-name version os-data]
   (let [status (sh "tar" "czf" (.toString (file-str fatty-pkg-dir "/" project-name "-" version "-" (os-data :os) "-" (os-data :machine) ".tar.gz")) "opscode" :dir "/opt")]
@@ -186,7 +125,25 @@
   "Build a fat binary"
   [project-name]
   (dorun (for [software-pkg (get-in @project-map [project-name :build-order])] (build (software-map software-pkg))))
-  (let [os-data (get-os-and-machine) project-version (get-in @project-map [project-name :version])]
+  (let [project-version (get-in @project-map [project-name :version])]
     (do
-      (build-tarball project-name project-version os-data)
-      (build-makeself project-name project-version os-data))))
+      (build-tarball project-name project-version os-and-machine)
+      (build-makeself project-name project-version os-and-machine))))
+
+(defn load-configuration
+  "Load the fatty configuration files"
+  []
+  (dorun (for [file-obj (.listFiles (file-str fatty-home-dir "/config/projects"))] (load-file (.toString file-obj))))
+  (dorun (for [file-obj (.listFiles (file-str fatty-home-dir "/config/software"))] (load-file (.toString file-obj)))))
+
+(defn is-os?
+  "Returns true if the current OS matches the argument"
+  [to-check]
+  (= (os-and-machine :os) to-check))
+
+(defn is-machine?
+  "Returns true if the current machine matches the argument"
+  [to-check]
+  (= (os-and-machine :machine) to-check))
+
+(load-configuration)
