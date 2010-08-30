@@ -23,7 +23,7 @@ To install Leiningen, follow the instructions here: http://github.com/technomanc
 
 Once you have Leiningen installed, run:
 
-lein deps
+$ lein deps
 
 From the top of the fatty source tree.
 
@@ -31,8 +31,7 @@ To start a build:
 
 $ rm -rf /opt/opscode
 $ lein repl
-clojure.core=> (use 'fatty.core)
-clojure.core=> (fatty.core/build-fat-binary "chef-full")
+fatty.core=> (build-fat-binary "chef-full")
 
 The results will be in ./pkg when the build is complete.
 
