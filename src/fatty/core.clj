@@ -3,7 +3,8 @@
         [clojure.contrib.logging :only [log]]
         [clojure.contrib.json]
         [clojure.contrib.io :only [make-parents file-str]])
-  (:require [clojure.contrib.string :as str]))
+  (:require [clojure.contrib.string :as str])
+  (:gen-class))
 
 (def fatty-home-dir (. System getProperty "user.dir"))
 (def fatty-source-dir (file-str fatty-home-dir "/source"))
@@ -147,3 +148,7 @@
   (= (os-and-machine :machine) to-check))
 
 (load-configuration)
+
+(defn -main
+  [& args]
+  (build-fat-binary (get args 0)))

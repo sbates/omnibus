@@ -1,63 +1,68 @@
-Build a fat binary, from scratch
+h2. Introduction 
 
-###
-# Install Build Time Dependencies
-###
+Fatty helps you build self-installing, full-stack software builds.  For
+example, we want to distribute the Chef client pre-bundled with its
+dependencies: ruby, required gems, etc.  The result is a single installable
+shell-script that can be executed on the client side, installing Chef, and
+configuring it.
 
-###
-# Zlib
-###
-wget http://zlib.net/zlib-1.2.5.tar.gz
-./configure --prefix=/opt/opscode/embedded/zlib/zlib-1.2.5
-make
-make install
+Fatty starts with the idea of a "project", which is comprised of a name,
+version, and a build order.  The build order references various "software"
+packages, which are compiled and installed to a specific path on the
+filesystem. (For the chef-full project, this would be /opt/opscode).  
 
-###
-# Berkeley DB
-###
-cd db-5.0.26.NC
-cd build-unix
-../dist/configure --prefix=/opt/opscode/embedded/db/db-5.0.26
+h2. Using Fatty
 
-###
-# GDBM
-###
-cd gdbm-1.8.3
-./configure --prefix=/opt/opscode/embedded/gdbm/gdbm-1.8.3
-edit Makefile, set BINOWN and BINGRP
-make install
+To start using fatty, you need a few dependencies:
 
-###
-# OpenSSL
-###
-cd openssl-1.0.0a
-./config --prefix=/opt/opscode/embedded/openssl/openssl-1.0.0a -L/opt/opscode/embedded/zlib/zlib-1.2.5/lib zlib-dynamic shared
-make
-make install
+* Java - either the Sun JDK, or the Open JDK
+* Leiningen
+* Your operating systems base build utilities - gcc, autoconf, etc.
 
-###
-# Libedit
-###
-cd libedit-20100424-3.0
-./configure --prefix=/opt/opscode/embedded/libedit/libedit-20100424-3.0
-make
-make install
+To install Leiningen, follow the instructions here: http://github.com/technomancy/leiningen
 
-###
-# Ruby 1.9.2-rc2
-###
-cd ./scratch
-wget http://ftp.ruby-lang.org/pub/ruby/1.9/ruby-1.9.2-rc2.tar.bz2
-tar jxvf ruby-1.9.2-rc2.tar.bz2
-cd ruby-1.9.2-rc2
-./configure --prefix=/opt/opscode
-make
-make install
+Once you have Leiningen installed, run:
 
-###
-# Install Chef
-###
-/opt/opscode/bin/gem install chef -n /opt/opscode/bin
+lein deps
 
-###
-# 
+From the top of the fatty source tree.
+
+To start a build:
+
+$ rm -rf /opt/opscode
+$ lein repl
+clojure.core=> (use 'fatty.core)
+clojure.core=> (fatty.core/build-fat-binary "chef-full")
+
+The results will be in ./pkg when the build is complete.
+
+h2. Adding software to fatty
+
+To add new software to fatty, you want to extract it and commit the source in the './source' directory.  Then add a configuration to config/software.  For example, to build gdbm:
+
+  1. Download the source for gdbm-1.8.3
+  2. Unpacked it in ./source
+  3. Removed the tarball
+  4. Added the following configuration in config/software/gdbm.clj
+
+(software "gdbm" :source "gdbm-1.8.3"
+                 :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                         (if (is-os? "darwin") ["perl" "-pi" "-e" "s/BINOWN = bin/BINOWN = root/g" "Makefile"])
+                         (if (is-os? "darwin") ["perl" "-pi" "-e" "s/BINGRP = bin/BINGRP = wheel/g" "Makefile"])
+                         ["make"]
+                         ["sudo" "make" "install"]])
+  
+The :source field should be the name of the directory created by unpacking the tarball.  The steps are a vector of vectors, each of which corresponds to a build step.  These steps are passed directly to clojure.java.sh/sh, which will execute them directly. You can use two handy functions to make the build be different based on operating system or machine architecture: is-os? and is-machine?.
+
+h2. Adding software to a project
+
+In config/projects, you will find the actual project definitions themselves.  These contain a name for the project, a version number, and the build order.  For the chef client:
+
+(project 
+  "chef-full" 
+  "0.9.8" 
+  [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ree" "rubygems" "rsync" "chef" ])
+
+The build order will run in order.
+
+Enjoy!
