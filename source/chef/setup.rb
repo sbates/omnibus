@@ -15,7 +15,7 @@ end
 chef_url = ARGV[0] 
 validation_client_name = nil
 
-if skip_config
+unless skip_config
   unless chef_url
     puts "The first argument to the installer must be an organization or URL"
     puts "Example:"
@@ -56,13 +56,11 @@ def run_command(cmd)
 end
 
 installer_dir = File.expand_path(File.dirname(__FILE__))
+run_command("mkdir -p /opt/opscode")
+run_command("#{installer_dir}/embedded/bin/rsync -a --delete --exclude #{installer_dir}/setup.rb #{installer_dir}/ /opt/opscode")
 
-if skip_config
-  run_command("mkdir -p /opt/opscode")
-  run_command("#{installer_dir}/embedded/bin/rsync -a --delete --exclude #{installer_dir}/setup.rb #{installer_dir}/ /opt/opscode")
+unless skip_config
   run_command("mkdir -p /etc/chef")
-  run_command("cp #{path_to_validation_key} /etc/chef/validation.pem")
-  run_command("chmod 600 /etc/chef/validation.pem")
   File.open("/etc/chef/client.rb", "w") do |crb|
     crb.puts <<EOH
 log_level                :info
@@ -73,6 +71,8 @@ EOH
       crb.puts "validation_client_name   '#{validation_client_name}'"
     end
   end
+  run_command("cp #{path_to_validation_key} /etc/chef/validation.pem")
+  run_command("chmod 600 /etc/chef/validation.pem")
 end
 
 puts <<EOH
