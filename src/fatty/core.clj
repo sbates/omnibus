@@ -114,9 +114,7 @@
 
 (defn -main
   [& args]
-  (do
-    (println "WTF, over?")
-    (build-fat-binary (get args 0))))
+  (build-fat-binary (get args 0)))
 
 
 
