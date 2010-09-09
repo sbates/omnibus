@@ -5,4 +5,4 @@
                          (if (is-os? "darwin") ["perl" "-pi" "-e" "s/BINOWN = bin/BINOWN = root/g" "Makefile"])
                          (if (is-os? "darwin") ["perl" "-pi" "-e" "s/BINGRP = bin/BINGRP = wheel/g" "Makefile"])
                          ["make"]
-                         ["sudo" "make" "install"]])
+                         [ "make" "install"]])

@@ -2,4 +2,4 @@
                :build-subdir "build_unix"
                :steps [["../dist/configure" "--prefix=/opt/opscode/embedded"]
                        ["make"]
-                       ["sudo" "make" "install"]])
+                       [ "make" "install"]])

@@ -23,6 +23,7 @@
         [fatty.util]
         [clojure.java.shell :only [sh]]        
         [clojure.contrib.json]
+        [clojure.contrib.command-line]
         [clojure.contrib.io :only [make-parents file-str]])
   (:require [clojure.contrib.string :as str])
   (:gen-class))
@@ -49,7 +50,8 @@
 (defn software
   "Create a new software description"
   [software-name & instruction-map]
-    (apply struct-map software-desc (conj instruction-map software-name :name )))
+  (do
+    (apply struct-map software-desc (conj instruction-map software-name :name ))))
 
 (defn project
   "Create a new project"
@@ -59,11 +61,13 @@
 (defn- load-forms
   "Load DSL configurations from specified directory"
   [directory]
-  (for [file-obj (.listFiles directory)]
-    (with-in-str (slurp (.toString file-obj))
-      (eval (read)))))
+  (for [file-name (map file-str (.listFiles directory))]
+    (with-in-str (slurp file-name)
+      (let [eval-form (read)]
+        (eval `(do (use 'fatty.core 'fatty.ohai)  ~eval-form))))))
+
                                         ; NOTE: we could simply load-file above, but at some point we'll want multiple forms
-                                        ; in a file and we'll want to iterate over them using read & eval to collect their output
+                                        ; in a file and we'll want to iterate over them using load-reader & eval to collect their output
 
 (defn build-software
   "Build a software package - runs prep for you"
@@ -74,6 +78,7 @@
     (run-steps *fatty-build-dir* soft)))
   
 (defn build-tarball
+  "Builds a tarball of the entire mess"
   [project-name version os-data]
   (let [status (sh "tar" "czf" (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" (os-data :os) "-" (os-data :machine) ".tar.gz")) "opscode" :dir "/opt")]
     (log-sh-result status
@@ -96,9 +101,12 @@
 (defn build-project
   "Build a project by building all the software in the appropriate build order"
   [project software-descs]
-  (let [build-order (project :build-order)]
-    (for [soft build-order]
-      (build-software (software-descs soft)))))
+  (do
+    (println (str "Building project '" (project :name) "'..."))
+    (let [build-order (project :build-order)]
+      (dorun (for [soft build-order]
+               (build-software (software-descs soft)))))
+    (println "build complete...")))
 
 (defn build-fat-binary
   "Build a fat binary"
@@ -107,14 +115,17 @@
         software-descs (reduce mapper  {}  (load-forms *fatty-software-dir*))
         projects  (reduce mapper {} (load-forms *fatty-projects-dir*))]
     (try
-      (do
-        (println (str "Building '" project-name "'..."))
-        (build-project (projects project-name) software-descs))
-      (catch NullPointerException e (println (str "Can't find project '" project-name "'!"))))))
+        (build-project (projects project-name) software-descs)
+      (catch NullPointerException e
+        (do
+          (println (str "Can't find project '" project-name "'!"))
+          (System/exit -2))))))
 
 (defn -main
+  "Main entry point when run from command line"
   [& args]
-  (build-fat-binary (get args 0)))
-
-
+  (with-command-line args
+    "Specify the project you'd like me to build..."
+    [[project-name "The name of the project to build"]]
+    (build-fat-binary project-name)))
 
