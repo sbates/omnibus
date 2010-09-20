@@ -7,13 +7,18 @@
   (:require [clojure.contrib.string :as str])
   (:gen-class))
 
-(defn get-os-and-machine
+(defn ohai
   "Use Ohai to get our Operating System and Machine Architecture"
   []
+  (println "calling os-and-machine")
   (let [ohai-data (read-json ((sh "ohai") :out))]
     {:os (get ohai-data :os), :machine (get-in ohai-data [:kernel :machine])}))
 
-(def os-and-machine (ref (get-os-and-machine)))
+(def ohai (memoize ohai))
+
+(defn os-and-machine
+  [& ohai-keys]
+  (get-in (ohai) ohai-keys))
 
 (defn is-os?
   "Returns true if the current OS matches the argument"
