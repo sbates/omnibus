@@ -76,6 +76,13 @@
     (clean *fatty-build-dir* soft)
     (prep *fatty-build-dir* *fatty-source-dir* soft)
     (run-steps *fatty-build-dir* soft)))
+
+(defn build-software-by-name
+  "Build a software package by name, rather than by clojure form"
+  [software-name]
+  (let [mapper #(assoc %1 (%2 :name) %2)
+        software-descs (reduce mapper  {}  (load-forms *fatty-software-dir*))]
+    (build-software (software-descs software-name))))
   
 (defn build-tarball
   "Builds a tarball of the entire mess"

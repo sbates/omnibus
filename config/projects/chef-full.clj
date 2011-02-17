@@ -16,5 +16,5 @@
 ; limitations under the License.
 ;
 
-(project "chef-full" "0.9.8"
+(project "chef-full" "0.9.12"
   :build-order [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ree" "rubygems" "rsync" "chef" ])
