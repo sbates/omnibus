@@ -17,4 +17,4 @@
 ;
 
 (project "chef-full" "0.9.12"
-  :build-order [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ree" "rubygems" "rsync" "chef" ])
+  :build-order [ "zlib" "libiconv" "readline" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt" "ree" "rsync" "chef" ])

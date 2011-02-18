@@ -21,5 +21,5 @@
                             (cond
                               (and (is-os? "darwin") (is-machine? "x86_64")) ["./Configure" "darwin64-x86_64-cc" "--prefix=/opt/opscode/embedded" "--with-zlib-lib=/opt/opscode/embedded/lib" "--with-zlib-include=/opt/opscode/embedded/include" "zlib" "shared"]
                               true ["./config" "--prefix=/opt/opscode/embedded" "--with-zlib-lib=/opt/opscode/embedded/lib" "--with-zlib-include=/opt/opscode/embedded/include" "zlib" "shared" "-L/opt/opscode/embedded/lib" "-I/opt/opscode/embedded/include"])
-                            ["bash" "-c" "make"]
-                            [ "make" "install"]])
+                            ["env LD_RUN_PATH=/opt/opscode/lib" "bash" "-c" "make"]
+                            ["make" "install"]])

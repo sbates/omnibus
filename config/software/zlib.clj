@@ -16,6 +16,6 @@
 ; limitations under the License.
 ;
 
-(software "zlib"  :source "zlib-1.2.5" :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+(software "zlib"  :source "zlib-1.2.5" :steps [["env LDFLAGS='-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include' CFLAGS='-I/opt/opscode/embedded/include -L/opt/opscode/embedded/lib'" "./configure" "--prefix=/opt/opscode/embedded"]
                                                ["make"]
                                                [ "make" "install"]])
