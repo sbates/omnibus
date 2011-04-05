@@ -17,6 +17,6 @@
 ;
 
 (software "ncurses" :source "ncurses-5.7"
-                    :steps [["env LDFLAGS='-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include'" "./configure" "--prefix=/opt/opscode/embedded" "--with-shared" "--with-normal" "--without-debug"]
-                            ["make"]
-                            [ "make" "install"]])
+                    :steps [["env" "LDFLAGS=-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" "CFLAGS=-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" "./configure" "--prefix=/opt/opscode/embedded" "--with-shared" "--with-normal" "--without-debug"]
+                            ["env" "LD_RUN_PATH=/opt/opscode/embedded/lib" "make"]
+                            ["make" "install"]])

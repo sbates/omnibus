@@ -17,6 +17,6 @@
 ;
 
 (software "readline" :source "readline-5.2"
-                     :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                     :steps [["env" "LDFLAGS=-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" "CFLAGS=-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" "./configure" "--prefix=/opt/opscode/embedded"]
                              ["make"]
-                             [ "make" "install"]])
+                             ["make" "install"]])

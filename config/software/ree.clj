@@ -17,7 +17,7 @@
 ;
 
 (software "ree" :source "ruby-enterprise-1.8.7-2011.01"
-          :steps [["env LD_RUN_PATH=/opt/opscode/embedded/lib LDFLAGS='-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include -R/opt/opscode/embedded/lib' CFLAGS='-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include' ./installer -a /opt/opscode/embedded --dont-install-useful-gems --no-dev-docs"]])
+          :steps [["env" "LD_RUN_PATH=/opt/opscode/embedded/lib" "LDFLAGS=-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include -R/opt/opscode/embedded/lib" "CFLAGS=-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" "./installer" "-a" "/opt/opscode/embedded" "--dont-install-useful-gems" "--no-dev-docs"]])
                   
                  ; ["bash" "-c" "cd ./source/distro/google-perftools-1.4 && ./configure --prefix=/opt/opscode/embedded --disable-dependency-tracking && make libtcmalloc_minimal.la"]
                  ; [ "mkdir" "-p" "/opt/opscode/embedded/lib"]

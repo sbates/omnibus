@@ -83,7 +83,15 @@
   (let [mapper #(assoc %1 (%2 :name) %2)
         software-descs (reduce mapper  {}  (load-forms *fatty-software-dir*))]
     (build-software (software-descs software-name))))
-  
+
+(defn build-deb
+  "Builds a deb"
+  [project-name version os-data]
+  (let [status (sh "./debian/build-deb" project-name version (os-data :machine))]
+    (log-sh-result status
+                   (str "Created debian package")
+                   (str "Failed to create debian package"))))
+
 (defn build-tarball
   "Builds a tarball of the entire mess"
   [project-name version os-data]
@@ -99,7 +107,7 @@
                    "/opt/opscode" 
                    (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" (os-data :os) "-" (os-data :machine) ".sh"))
                    (str "'Opscode " project-name " " version "'")
-                   "./setup.rb"
+                   "./setup.sh"
                    :dir *fatty-home-dir*)]
     (log-sh-result status
                    (str "Created shell archive for " project-name " on " (os-data :os) " " (os-data :machine))
@@ -121,12 +129,16 @@
   (let [mapper #(assoc %1 (%2 :name) %2)
         software-descs (reduce mapper  {}  (load-forms *fatty-software-dir*))
         projects  (reduce mapper {} (load-forms *fatty-projects-dir*))]
-    (try
+    (do
+      (try
         (build-project (projects project-name) software-descs)
-      (catch NullPointerException e
-        (do
-          (println (str "Can't find project '" project-name "'!"))
-          (System/exit -2))))))
+        (catch NullPointerException e
+          (do
+            (println (str "Can't find project '" project-name "'!"))
+            (System/exit -2))))
+     (build-tarball project-name ((projects project-name) :version) os-and-machine)
+     (build-makeself project-name ((projects project-name) :version) os-and-machine)
+     (build-deb project-name ((projects project-name) :version) os-and-machine))))
 
 (defn -main
   "Main entry point when run from command line"

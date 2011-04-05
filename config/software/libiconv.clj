@@ -18,6 +18,6 @@
 
 
 (software "libiconv" :source "libiconv-1.13.1"
-                     :steps [["env LDFLAGS='-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include'" "./configure" "--prefix=/opt/opscode/embedded"]
-                             ["make"]
+                     :steps [["./configure" "--prefix=/opt/opscode/embedded"]
+                             ["env" "LD_RUN_PATH=/opt/opscode/embedded/lib" "make"]
                              ["make" "install"]])
