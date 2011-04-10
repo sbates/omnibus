@@ -18,8 +18,9 @@
 ;;
 
 (software "gdbm" :source "gdbm-1.8.3"
-                 :steps [{:env {"LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" "CFLAGS" "=-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"} :command "./configure" :args ["--prefix=/opt/opscode/embedded"]}
-                         (when (is-os? "darwin") {:command "perl" :args ["-pi" "-e" "s/BINOWN = bin/BINOWN = root/g" "Makefile"]})
-                         (when (is-os? "darwin") {:command "perl" :args ["-pi" "-e" "s/BINGRP = bin/BINGRP = wheel/g" "Makefile"]})
-                         {:command "make"}
-                         {:command "make" :args ["install"]}])
+          :steps [{:env {"LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+                         "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
+                   :command "./configure"
+                   :args ["--prefix=/opt/opscode/embedded"]}
+                  {:command "make" :args ["BINOWN=root" "BINGRP=wheel"]}
+                  {:command "make" :args ["install"]}])

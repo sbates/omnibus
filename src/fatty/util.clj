@@ -44,7 +44,6 @@
 (defn prep
   "Prepare to build a software package by copying its source to a pristine build directory"
   [build-root source-root soft]
-  (when (soft :source)
-    (do
-      (.mkdirs build-root)
-      (copy-source-to-build build-root source-root soft))))
+  (do
+    (.mkdirs build-root)
+    (copy-source-to-build build-root source-root soft)))

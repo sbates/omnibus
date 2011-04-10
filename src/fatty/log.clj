@@ -27,9 +27,9 @@
   (if (zero? (status :exit))
     (do
       (log :info true-log)
-;;      (log :info (status :exit))
-;;      (log :info (status :out))
-;;      (log :info (status :err))      
+      ;; (log :info (status :exit))
+      ;; (log :info (status :out))
+      ;; (log :info (status :err))      
       true)
     (do
       (log :error false-log)

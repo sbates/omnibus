@@ -18,11 +18,13 @@
 ;;
 
 (software "ncurses" :source "ncurses-5.7"
-          :steps [{:env {"LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
-                         "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
+          :steps [
+                  {:env {
+                         "LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+                         "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+                         }
                    :command "./configure"
-                   :args ["--prefix=/opt/opscode/embedded" "--with-shared" "--with-normal" "--without-debug"]}
-                  
+                   :args ["--prefix=/opt/opscode/embedded" "--with-shared" "--without-debug"]}
                   {:env {"LD_RUN_PATH" "/opt/opscode/embedded/lib"} :command "make"}
                   {:env {"LD_RUN_PATH" "/opt/opscode/embedded/lib"} :command "make" :args ["install"]}])
 

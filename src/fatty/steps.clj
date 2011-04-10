@@ -26,17 +26,24 @@
   (:require [clojure.contrib.string :as str])
   (:gen-class))
 
+(defn run-shell
+  [step]
+  (let [combined-env (merge (step :env) (System/getenv))]
+    (with-sh-env combined-env
+      (if (step :args)
+        (apply sh (cons (step :command) (step :args)))
+        (sh (step :command))))))
+
 (defn- execute-step
   "Run a build step"
   [step path]
   (let [step-info (str-join " " (cons (step :command) (step :args)))]
     (log :info (str "Running step: " step-info ))
     (with-sh-dir path
-      (log-sh-result (apply sh (if (nil? (step :args))
-                                 (list (step :command))
-                                 (cons (step :command) (step :args))))
+      (log-sh-result (run-shell step)
                      (str "Step command succeeded: " step-info)
                      (str "Step command failed: " step-info)))))
+
 (defn run-steps
   "Run the steps for a given piece of software"
   [build-root soft]
