@@ -27,19 +27,19 @@
            {
             "LDFLAGS" "-Wl,-rpath /opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
             "CFLAGS" "-I/opt/opscode/embedded/include -L/opt/opscode/embedded/lib"
-            }           
-(software "zlib"
-          :source "zlib-1.2.5"
-          :steps [
-                  {
-                   :command "./configure"
-                   :env 
-                   :args ["--prefix=/opt/opscode/embedded"]
-                   }
-                  { :command "make" }
-                  { :command "make" :args ["install"]}
-                  ])
+            })]
+  (software "zlib"
+            :source "zlib-1.2.5"
+            :steps [
+                    {
+                     :command "./configure"
+                     :env env
+                     :args ["--prefix=/opt/opscode/embedded"]
+                     }
+                    { :command "make" }
+                    { :command "make" :args ["install"]}
+                    ]))
 
 
 
- 
+
