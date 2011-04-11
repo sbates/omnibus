@@ -42,7 +42,7 @@
              "--with-ssl=/opt/opscode/embedded"
              "--disable-debug"])
       env (cond
-           (and (is-os? "darwin" (is-machine? "x86_64")))
+           (and (is-os? "darwin") (is-machine? "x86_64"))
            { "CFLAGS" "-arch x86_64 -m64 -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
              "LDFLAGS" "-arch x86_64 -R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
            (is-os? "linux")
