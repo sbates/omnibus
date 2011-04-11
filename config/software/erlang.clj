@@ -47,7 +47,7 @@
              "LDFLAGS" "-arch x86_64 -R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
            (is-os? "linux")
            { "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
-             "LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
+             "LDFLAGS" "-Wl,-rpath /opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
            )
       ]
   (software "erlang" :source "otp_src_R14B02"
