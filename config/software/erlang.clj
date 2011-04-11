@@ -37,6 +37,7 @@
              "--enable-smp-support"
              "--enable-kernel-poll"
              "--enable-dynamic-ssl-lib"
+             "--enable-shared-zlib"
              "--enable-hipe"
              "--without-javac"
              "--with-ssl=/opt/opscode/embedded"
