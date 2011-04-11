@@ -1,3 +1,0 @@
-%% -*- erlang -*-
-{exclude,[sys_pre_attributes,core_scan,core_parse]}.
-

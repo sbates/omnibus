@@ -17,10 +17,30 @@
 ;; limitations under the License.
 ;;
 
-(software "erlang" :source "otp_src_R14B"
+(software "erlang" :source "otp_src_R14B02"
           :steps [
-                  {:command "./configure" :args ["--prefix=/opt/opscode/embedded" "--enable-threads" "--enable-smp-support" "--enable-kernel-poll" "--enable-hipe" "--enable-shared-zlib" "--without-javac" "--with-ssl=/opt/opscode/embedded" "--disable-debug"] :env { "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}}
-                  {:command "touch" :args[ "lib/wx/SKIP" ] }
-                  {:command "make"}
+                  {:command "touch" :args ["lib/wx/SKIP"] }                  
+                  {:command "./configure"
+                   :args ["--prefix=/opt/opscode/embedded"
+                          "--enable-threads"
+                          "--enable-smp-support"
+                          "--enable-kernel-poll"
+                          "--enable-darwin-64bit"
+                          "--enable-dynamic-ssl-lib"
+                          "--enable-m64-build"
+                          "--without-javac"
+                          "--with-ssl=/opt/opscode/embedded"
+                          "--build=i686-apple-darwin10"
+                          "--disable-hipe"
+                          "--disable-debug"]
+                   :env { "CFLAGS" "-arch x86_64 -m64 -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+                          "LDFLAGS" "-arch x86_64 -R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+                          }}
+                  {
+                   :env { "CFLAGS" "-arch x86_64 -m64 -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+                          "LDFLAGS" "-arch x86_64 -R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" }
+                   :command "make"
+                   }
                   {:command "make" :args ["install"]}])
 
+;;                          "--enable-hipe"
