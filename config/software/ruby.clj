@@ -17,8 +17,21 @@
 ;; limitations under the License.
 ;;
 
-(software "ruby"
-          :source "ruby-1.9.2-p0"
-          :steps [{:env {"LDFLAGS" "-R/opt/opscode/embedded/lib"} :command "./configure" :args ["--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared" "--disable-install-doc"]}
-                  {:command "make"}
-                  {:command "make" :args ["install"]}])
+(let [env
+      (cond
+       (and (is-os? "darwin") (is-machine? "x86_64"))
+       { "CFLAGS" "-arch x86_64 -m64 -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+         "LDFLAGS" "-arch x86_64 -R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
+       (is-os? "linux")
+       { "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+         "LDFLAGS" "-Wl,-rpath /opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
+       )
+      ]
+  (software "ruby"
+            :source "ruby-1.9.2-p0"
+            :steps [{:env env
+                     :command "./configure"
+                     :args ["--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared" "--disable-install-doc"]}
+                    {:env env
+                     :command "make"}
+                    {:command "make" :args ["install"]}]))
