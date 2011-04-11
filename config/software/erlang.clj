@@ -53,7 +53,9 @@
       ]
   (software "erlang" :source "otp_src_R14B02"
             :steps [
-                    {:command "touch" :args ["lib/wx/SKIP"] }                  
+                    {:command "touch" :args ["lib/wx/SKIP"] }
+                    {:command "mkdir" :args ["-p lib/hipe/ebin"] } ;; I know, right? [cb]
+                    
                     {:command "./configure"
                      :args args
                      :env env}
