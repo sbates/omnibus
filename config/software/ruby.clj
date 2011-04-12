@@ -31,7 +31,7 @@
             :source "ruby-1.9.2-p0"
             :steps [{:env env
                      :command "./configure"
-                     :args ["--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared" "--disable-install-doc"]}
+                     :args ["--prefix=/opt/opscode/embedded" "--with-opt-dir=/opt/opscode/embedded" "--enable-shared" "--disable-install-doc" "--with-xml2-include=/opt/opscode/embedded/include" "--with-xml2-lib=/opt/opscode/embedded/lib"]}
                     {:env env
                      :command "make"}
                     {:command "make" :args ["install"]}]))

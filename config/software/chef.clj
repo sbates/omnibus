@@ -19,7 +19,7 @@
 
 (software "chef" :source "chef"
           :steps [
-                  {:command "/opt/opscode/embedded/bin/gem" :args ["install" "chef" "fog" "highline" "net-ssh-multi" "-n" "/opt/opscode/bin" "--no-rdoc" "--no-ri"]}
+                  {:command "/opt/opscode/embedded/bin/gem" :args ["install" "chef" "fog" "highline" "net-ssh-multi" "-n" "/opt/opscode/bin" "--no-rdoc" "--no-ri" "--" "--with-xml2-include=/opt/opscode/embedded/include/libxml2" "--with-xml2-lib=/opt/opscode/embedded/lib"]}
                   {:command "cp" :args ["setup.sh" "/opt/opscode"]}
                   {:command "chmod" :args ["755" "/opt/opscode/setup.sh"]}
                   {:command "rm" :args[ "-rf" "/opt/opscode/embedded/docs"]}
