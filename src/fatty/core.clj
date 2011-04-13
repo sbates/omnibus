@@ -120,11 +120,11 @@
   "Build a project by building all the software in the appropriate build order"
   [project software-descs]
   (do
-    (println (str "Building project '" (project :name) "'..."))
+    (println (str "\n-------------------------\nBuilding project '" (project :name) "'..."))
     (let [build-order (project :build-order)]
       (dorun (for [soft build-order]
                (build-software (software-descs soft)))))
-    (println "build complete...")))
+    (println "build complete...\n------------------------")))
 
 (defn build-fat-binary
   "Build a fat binary"

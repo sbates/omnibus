@@ -27,10 +27,11 @@
 (defn- copy-source-to-build
   "Copy the source directory to the build directory"
   [build-root source-root soft]
-  (let [status (sh "cp" "-r" (.getPath (file-str source-root "/" (soft :source))) (.getPath build-root))]
-    (log-sh-result status 
-                   (str "Copied " (soft :source) " to build directory.")
-                   (str "Failed to copy " (soft :source) " to build directory."))))
+  (when-let [src (soft :source)]
+    (let [status (sh "cp" "-r" (.getPath (file-str source-root "/" src)) (.getPath build-root))]
+      (log-sh-result status 
+                     (str "Copied " src " to build directory.")
+                     (str "Failed to copy " src " to build directory.")))))
 
 (defn clean
   "Clean a previous build directory"
@@ -44,6 +45,7 @@
 (defn prep
   "Prepare to build a software package by copying its source to a pristine build directory"
   [build-root source-root soft]
-  (do
-    (.mkdirs build-root)
-    (copy-source-to-build build-root source-root soft)))
+  (when (soft :source)
+    (do
+      (.mkdirs build-root)
+      (copy-source-to-build build-root source-root soft))))
