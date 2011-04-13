@@ -18,6 +18,5 @@
 ;;
 
 (software "libxslt" :source "libxslt-1.1.26"
-                    :steps [{:env {"LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"} :command "./configure" :args ["--prefix=/opt/opscode/embedded" "--with-libxml-prefix=/opt/opscode/embedded" "--with-libxml-include-prefix=/opt/opscode/embedded/include" "--with-libxml-libs-prefix=/opt/opscode/embedded/lib"]}
-                            {:command "./buildit.sh"}
+                    :steps [{:env {"LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"} :command "./autogen.sh" :args ["--prefix=/opt/opscode/embedded" "--with-libxml-prefix=/opt/opscode/embedded" "--with-libxml-include-prefix=/opt/opscode/embedded/include" "--with-libxml-libs-prefix=/opt/opscode/embedded/lib"]}
                             {:command "make" :args ["install"]}])

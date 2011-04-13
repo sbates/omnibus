@@ -54,7 +54,7 @@ extern "C" {
 #define WITH_XSLT_DEBUG
 #endif
 
-#if 1
+#if 0
 /**
  * DEBUG_MEMORY:
  *
@@ -120,7 +120,7 @@ extern "C" {
 #ifndef WITH_MODULES
 #define WITH_MODULES
 #endif
-#define LIBXSLT_DEFAULT_PLUGINS_PATH() "/usr/lib/libxslt-plugins"
+#define LIBXSLT_DEFAULT_PLUGINS_PATH() "/usr/local/lib/libxslt-plugins"
 #endif
 
 /**
