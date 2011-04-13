@@ -29,8 +29,8 @@
                                                  "--disable-dependency-tracking"
                                                  "--enable-ipv6"
                                                  "--without-libidn"
-                                                 "--with-ssl=/opt/opscode/embedded/lib"
-                                                 "--with-zlib=/opt/opscode/embedded/lib"]}
+                                                 "--with-ssl=/opt/opscode/embedded"
+                                                 "--with-zlib=/opt/opscode/embedded"]}
                   {:command "make"}
                   {:command "make" :args ["install"]}
                   ])

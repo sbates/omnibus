@@ -23,9 +23,9 @@
           :steps [
                   {:command "make" :args ["BUILD_OPT=1" "XCFLAGS=-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" "-f" "Makefile.ref"]}
                   {:command "make" :args ["BUILD_OPT=1" "JS_DIST=/opt/opscode/embedded" "-f" "Makefile.ref" "export"]}
-                  {:command "mv" :args ["/opt/opscode/embedded/lib64/libjs.a" "/opt/opscode/embedded/lib"]}
-                  {:command "mv" :args ["/opt/opscode/embedded/lib64/libjs.so" "/opt/opscode/embedded/lib"]}
-                  {:command "rm" :args ["-rf" "/opt/opscode/embedded/lib64"]}
+;;                  {:command "mv" :args ["/opt/opscode/embedded/lib/libjs.a" "/opt/opscode/embedded/lib"]}
+;;                  {:command "mv" :args ["/opt/opscode/embedded/lib/libjs.so" "/opt/opscode/embedded/lib"]}
+;;                  {:command "rm" :args ["-rf" "/opt/opscode/embedded/lib"]}
                   ])
 
 

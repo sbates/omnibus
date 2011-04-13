@@ -1,3 +1,4 @@
+
 ;;
 ;; Author:: Adam Jacob (<adam@opscode.com>)
 ;; Author:: Christopher Brown (<cb@opscode.com>)
@@ -20,7 +21,8 @@
 (software "icu" :source "icu"
           :build-subdir "source"
           :steps [
-                  {:command "./configure" :args ["--prefix=/opt/opscode/embedded" "CFLAGS=-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" ]}
+                  {:env { "CFLAGS=-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include" }
+                   :command "./configure" :args ["--prefix=/opt/opscode/embedded" ]}
                   {:command "make"}
                   {:command "make" :args ["install"]}
                   ])
