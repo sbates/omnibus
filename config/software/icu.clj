@@ -25,5 +25,6 @@
                    :command "./configure" :args ["--prefix=/opt/opscode/embedded" ]}
                   {:command "make"}
                   {:command "make" :args ["install"]}
+                  {:command "ln" :args ["-sfn" "/opt/opscode/embedded/bin/icu-config" "/usr/local/bin/icu-config"]}
                   ])
 

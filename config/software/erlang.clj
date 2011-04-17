@@ -53,15 +53,32 @@
       ]
   (software "erlang" :source "otp_src_R14B02"
             :steps [
+                    {:command  "rm" :args ["-f" "/usr/local/bin/erl"]}
+                    {:command  "rm" :args ["-f" "/usr/local/bin/erlc"]}
+                    {:command  "rm" :args ["-f" "/usr/local/bin/epmd"]}
+                    {:command  "rm" :args ["-f" "/usr/local/bin/run_erl"]}
+                    {:command  "rm" :args ["-f" "/usr/local/bin/erl"]}
+                    {:command  "rm" :args ["-f" "/usr/local/bin/dialyzer"]}
+                    {:command  "rm" :args ["-f" "/usr/local/bin/typer"]}
+                    {:command  "rm" :args ["-f" "/usr/local/bin/escript"]}
+                    {:command  "rm" :args ["-f" "/usr/local/bin/run_test"]}
+                    
                     {:command "touch" :args ["lib/wx/SKIP"] }
                     {:command "mkdir" :args ["-p" "lib/hipe/ebin"] } ;; I know, right? [cb]
                     
                     {:command "./configure"
                      :args args
                      :env env}
-                    {
-                     :env env
-                     :command "make"
-                     }
-                    {:command "make" :args ["install"]}]))
+                    {:env env :command "make" }
+                    {:command "make" :args ["install"]}
+                    {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/erl" "/usr/local/bin/erl"]}
+                    {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/erlc" "/usr/local/bin/erlc"]}
+                    {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/epmd" "/usr/local/bin/epmd"]}
+                    {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/run_erl" "/usr/local/bin/run_erl"]}
+                    {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/to_erl" "/usr/local/bin/to_erl"]}
+                    {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/dialyzer" "/usr/local/bin/dialyzer"]}
+                    {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/typer" "/usr/local/bin/typer"]}
+                    {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/escript" "/usr/local/bin/escript"]}
+                    {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/run_test" "/usr/local/bin/run_test"]}
+                    ]))
 

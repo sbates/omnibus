@@ -17,15 +17,19 @@
 ;; limitations under the License.
 ;;
 
-(software "couchdb" :source "apache-couchdb-1.0.1"
-          :steps [
-                  {:command "./configure"
-                   :args ["--prefix=/opt/opscode/embedded"
-                          "--disable-init"
-                          "--disable-launchd"
-                          "--with-erlang=/opt/opscode/embedded"
-                          "--with-js-include=/opt/opscode/embedded/include"
-                          "--with-js-lib=/opt/opscode/embedded/lib" ]}
-                  {:env {"RPATH" "/opt/opscode/embedded/lib" "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"} :command "make"}
-                  {:command "make" :args ["install"]} ])
+(let [ env {"RPATH" "/opt/opscode/embedded/lib"
+            "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+            "PATH" (apply str (interpose ":" [(System/getenv "PATH") "/opt/opscode/embedded/bin"]))} ]
+  (software "couchdb" :source "apache-couchdb-1.0.1"
+            :steps [
+                    {:env env
+                     :command "./configure"
+                     :args ["--prefix=/opt/opscode/embedded"
+                            "--disable-init"
+                            "--disable-launchd"
+                            "--with-erlang=/opt/opscode/embedded/lib/erlang/usr/include"
+                            "--with-js-include=/opt/opscode/embedded/include"
+                            "--with-js-lib=/opt/opscode/embedded/lib" ]}
+                    {:env env  :command "make"}
+                    {:env env :command "make" :args ["install"]} ]))
 

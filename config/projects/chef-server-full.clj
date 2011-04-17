@@ -18,7 +18,8 @@
 ;;
 
 (project "chef-server-full" "0.9.12"
-         :build-order [ "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl" "libxml2" "libxslt"
-                        "ruby" "rsync" "chef" "chef-server" "erlang" "icu" "spidermonkey" "curl" "couchdb"])
+         :build-order [ "prep" "zlib" "libiconv" "db" "gdbm" "ncurses" "openssl"
+                        "libxml2" "libxslt" "ruby" "rsync" "chef" "chef-server"
+                        "erlang" "icu" "spidermonkey" "curl" "couchdb"])
 
 
