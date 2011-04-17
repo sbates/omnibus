@@ -1,4 +1,3 @@
-
 ;;
 ;; Author:: Adam Jacob (<adam@opscode.com>)
 ;; Author:: Christopher Brown (<cb@opscode.com>)

@@ -33,6 +33,6 @@
                                                  "--with-zlib=/opt/opscode/embedded"]}
                   {:command "make"}
                   {:command "make" :args ["install"]}
-                  ])
+                  {:command "ln" :args ["-sfn" "/opt/opscode/embedded/bin/curl-config" "/usr/local/bin/curl-config"]}                            ])
 
 
