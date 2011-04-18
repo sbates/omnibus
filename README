@@ -28,8 +28,8 @@ $ lein deps
 From the top of the fatty source tree.
 
 To start a build:
+(make sure the project includes the 'prep' step which will create the appropriate directories)
 
-$ rm -rf /opt/opscode
 $ lein repl
 fatty.core=> (build-fat-binary "chef-full")
 
@@ -68,4 +68,4 @@ Enjoy!
 
 h2. Bundled software and licensing
 
-Software under the "source" directory is under the license it is distributed by.  
+All software under the "source" directory retains the license by which it was originally distributed.
