@@ -28,7 +28,7 @@
   "Copy the source directory to the build directory"
   [build-root source-root soft]
   (when-let [src (soft :source)]
-    (let [status (sh "cp" "-r" (.getPath (file-str source-root "/" src)) (.getPath build-root))]
+    (let [status (sh "cp" "-R" (.getPath (file-str source-root "/" src)) (.getPath build-root))]
       (log-sh-result status 
                      (str "Copied " src " to build directory.")
                      (str "Failed to copy " src " to build directory.")))))
