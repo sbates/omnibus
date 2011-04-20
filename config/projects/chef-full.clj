@@ -18,5 +18,5 @@
 ;;
 
 (project "chef-full" "0.9.12"
-         :build-order [ "prep" "zlib" "libiconv" "readline" "db" "gdbm" "ncurses"
+         :build-order [ "prep" "gdbm" "zlib" "libiconv" "readline" "db" "ncurses"
                         "openssl" "libxml2" "libxslt" "ree" "rsync" "chef" ])
