@@ -22,7 +22,7 @@
        {:command "make" :args ["BUILD_OPT=1" "JS_DIST=/opt/opscode/embedded" "-f" "Makefile.ref" "export"]}]
       steps
       (cond
-       (is-os? "darwin")
+       (is-machine? "x86_64")
        (concat
         initial-steps
         [{:command "mv" :args ["/opt/opscode/embedded/lib64/libjs.a" "/opt/opscode/embedded/lib"]}
