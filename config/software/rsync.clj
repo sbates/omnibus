@@ -26,6 +26,6 @@
                    :args ["--prefix=/opt/opscode/embedded"]}
                   {:env {"LD_RUN_PATH" "/opt/opscode/embedded/lib"}
                    :command "make"}
-                  { :command "make"
+                  {:command "make"
                    :args ["install"]}])
 

@@ -20,9 +20,7 @@
 (software "openssl" :source "openssl-0.9.8o"
                     :steps [
                             (cond
-                             (and
-                              (is-os? "darwin")
-                              (is-machine? "x86_64"))
+                             (and (is-os? "darwin") (is-machine? "x86_64"))
                               {
                                :command "./Configure"
                                :args ["darwin64-x86_64-cc"
@@ -43,12 +41,10 @@
                                        "-L/opt/opscode/embedded/lib"
                                        "-I/opt/opscode/embedded/include"]
                                })
-                            ;; {
-                            ;;  :command "bash"
-                            ;;  :args ["-c" "make"]
-                            ;;  :env { "LD_RUN_PATH" "/opt/opscode/embedded/lib"}
-                            ;;  }
-                            {:command "make" :env {"LD_RUN_PATH" "/opt/opscode/embedded/lib"}}
+                            {
+                             :env {"LD_RUN_PATH" "/opt/opscode/embedded/lib"}
+                             :command "make"
+                             }
                             {
                              :command "make"
                              :args ["install"]

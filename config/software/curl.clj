@@ -19,20 +19,24 @@
 
 (software "curl" :source "curl-7.21.2"
           :steps [
-                  {:command "./configure" :args ["--prefix=/opt/opscode/embedded"
-                                                 "--disable-debug"
-                                                 "--enable-optimize"
-                                                 "--disable-ldap"
-                                                 "--disable-ldaps"
-                                                 "--disable-rtsp"
-                                                 "--enable-proxy"
-                                                 "--disable-dependency-tracking"
-                                                 "--enable-ipv6"
-                                                 "--without-libidn"
-                                                 "--with-ssl=/opt/opscode/embedded"
-                                                 "--with-zlib=/opt/opscode/embedded"]}
+                  {:command "./configure"
+                   :args ["--prefix=/opt/opscode/embedded"
+                          "--disable-debug"
+                          "--enable-optimize"
+                          "--disable-ldap"
+                          "--disable-ldaps"
+                          "--disable-rtsp"
+                          "--enable-proxy"
+                          "--disable-dependency-tracking"
+                          "--enable-ipv6"
+                          "--without-libidn"
+                          "--with-ssl=/opt/opscode/embedded"
+                          "--with-zlib=/opt/opscode/embedded"]}
                   {:command "make"}
                   {:command "make" :args ["install"]}
-                  {:command "ln" :args ["-sfn" "/opt/opscode/embedded/bin/curl-config" "/usr/local/bin/curl-config"]}                            ])
+                  {:command "ln"
+                   :args ["-sfn"
+                          "/opt/opscode/embedded/bin/curl-config"
+                          "/usr/local/bin/curl-config"]}])
 
 

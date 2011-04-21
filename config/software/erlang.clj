@@ -66,9 +66,7 @@
                     {:command "touch" :args ["lib/wx/SKIP"] }
                     {:command "mkdir" :args ["-p" "lib/hipe/ebin"] } ;; I know, right? [cb]
                     
-                    {:command "./configure"
-                     :args args
-                     :env env}
+                    {:env env :command "./configure" :args args}
                     {:env env :command "make" }
                     {:command "make" :args ["install"]}
                     {:command  "ln" :args ["-sfn" "/opt/opscode/embedded/bin/erl" "/usr/local/bin/erl"]}

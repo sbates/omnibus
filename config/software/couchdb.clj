@@ -30,6 +30,6 @@
                             "--with-erlang=/opt/opscode/embedded/lib/erlang/usr/include"
                             "--with-js-include=/opt/opscode/embedded/include"
                             "--with-js-lib=/opt/opscode/embedded/lib" ]}
-                    {:env env  :command "make"}
+                    {:env env :command "make"}
                     {:env env :command "make" :args ["install"]} ]))
 

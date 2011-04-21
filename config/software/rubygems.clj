@@ -18,5 +18,7 @@
 ;;
 
 (software "rubygems" :source "rubygems-1.3.7"
-                    :steps [{:command "/opt/opscode/embedded/bin/ruby" :args[ "setup.rb"]}])
+          :steps [
+                  {:command "/opt/opscode/embedded/bin/ruby"
+                   :args ["setup.rb"]}])
 
