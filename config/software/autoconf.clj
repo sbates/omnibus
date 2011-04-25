@@ -17,6 +17,12 @@
 ;; limitations under the License.
 ;;
 
-(project "chef-full" "0.9.12"
-         :build-order [ "prep" "autoconf" "gdbm" "zlib" "libiconv" "readline" "db" "ncurses"
-                        "openssl" "libxml2" "libxslt" "ree" "rsync" "chef" ])
+(software "autoconf" :source "autoconf-2.63"
+          :steps [{
+                   :env {"LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+                         "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
+                   :command "./configure"
+                   :args ["--prefix=/opt/opscode/embedded"]
+                   }
+                  {:command "make"}
+                  {:command "make" :args ["install"]}])
