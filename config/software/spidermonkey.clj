@@ -33,4 +33,4 @@
   (software "spidermonkey"
             :source "js"
             :build-subdir "src"
-            :steps initial-steps))
+            :steps steps))
