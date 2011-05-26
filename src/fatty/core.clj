@@ -100,7 +100,7 @@
   [project-name version os-data]
   (let [status (sh "tar" "czf" (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".tar.gz")) "opscode" :dir "/opt")]
     (log-sh-result status
-                   (str "Created tarball package for " project-name " on " (os-data :os) " " (os-data :machine))
+                   (str "Created tarball package for " project-name " on " (os-data :platform) " " (os-data :platform_version) " " (os-data :machine))
                    (str "Failed to create tarball package for " project-name " on " (os-data :os) " " (os-data :machine)))))
 
 (defn build-makeself
@@ -139,9 +139,10 @@
           (do
             (println (str "Can't find project '" project-name "'!"))
             (System/exit -2))))
-     (build-tarball project-name ((projects project-name) :version) os-and-machine)
-     (build-makeself project-name ((projects project-name) :version) os-and-machine)
-     (build-deb project-name ((projects project-name) :version) os-and-machine))))
+      (build-tarball project-name ((projects project-name) :version) os-and-machine)
+      (build-makeself project-name ((projects project-name) :version) os-and-machine)
+      (if (or (= (os-and-machine :platform) "debian") (= (os-and-machine :platform) "ubuntu"))
+        (build-deb project-name ((projects project-name) :version) os-and-machine)))))
 
 (defn -main
   "Main entry point when run from command line"
