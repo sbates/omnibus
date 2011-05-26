@@ -98,7 +98,7 @@
 (defn build-tarball
   "Builds a tarball of the entire mess"
   [project-name version os-data]
-  (let [status (sh "tar" "czf" (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" (os-data :os) "-" (os-data :machine) ".tar.gz")) "opscode" :dir "/opt")]
+  (let [status (sh "tar" "czf" (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".tar.gz")) "opscode" :dir "/opt")]
     (log-sh-result status
                    (str "Created tarball package for " project-name " on " (os-data :os) " " (os-data :machine))
                    (str "Failed to create tarball package for " project-name " on " (os-data :os) " " (os-data :machine)))))
@@ -108,13 +108,13 @@
   (let [status (sh (.toString (file-str *fatty-makeself-dir* "/makeself.sh")) 
                    "--gzip" 
                    "/opt/opscode" 
-                   (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" (os-data :os) "-" (os-data :machine) ".sh"))
+                   (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".sh"))
                    (str "'Opscode " project-name " " version "'")
                    "./setup.sh"
                    :dir *fatty-home-dir*)]
     (log-sh-result status
-                   (str "Created shell archive for " project-name " on " (os-data :os) " " (os-data :machine))
-                   (str "Failed to create shell archive for " project-name " on " (os-data :os) " " (os-data :machine)))))
+                   (str "Created shell archive for " project-name " on " (os-data :platform) " " (os-data :platform_version) " " (os-data :machine))
+                   (str "Failed to create shell archive for " project-name " on " (os-data :platform) " " (os-data :platform_version) " " (os-data :machine)))))
 
 (defn build-project
   "Build a project by building all the software in the appropriate build order"
