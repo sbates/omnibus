@@ -28,7 +28,7 @@
        )
       ]
   (software "ruby"
-            :source "ruby-1.9.2-p0"
+            :source "ruby-1.9.2-p180"
             :steps [
                     {:env env
                      :command "autoconf"
