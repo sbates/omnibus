@@ -90,10 +90,18 @@
 (defn build-deb
   "Builds a deb"
   [project-name version os-data]
-  (let [status (sh "./debian/build-deb" project-name version (os-data :machine))]
+  (let [status (sh "fpm" "-s" "dir" "-t" "deb" "-v" version "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "./debian/postinst" "--post-uninstall" "./debian/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com")]
     (log-sh-result status
                    (str "Created debian package")
                    (str "Failed to create debian package"))))
+
+(defn build-rpm
+  "Builds a rpm"
+  [project-name version os-data]
+  (let [status (sh "fpm" "-s" "dir" "-t" "rpm" "-v" version "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "./debian/postinst" "--post-uninstall" "./debian/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com")]
+    (log-sh-result status
+                   (str "Created rpm package")
+                   (str "Failed to create rpm package"))))
 
 (defn build-tarball
   "Builds a tarball of the entire mess"
@@ -142,7 +150,9 @@
       (build-tarball project-name ((projects project-name) :version) os-and-machine)
       (build-makeself project-name ((projects project-name) :version) os-and-machine)
       (if (or (= (os-and-machine :platform) "debian") (= (os-and-machine :platform) "ubuntu"))
-        (build-deb project-name ((projects project-name) :version) os-and-machine)))))
+        (build-deb project-name ((projects project-name) :version) os-and-machine))
+      (if (or (= (os-and-machine :platform) "redhat") (= (os-and-machine :platform) "centos") (= (os-and-machine :platform) "fedora"))
+        (build-rpm project-name ((projects project-name) :version) os-and-machine)))))
 
 (defn -main
   "Main entry point when run from command line"
