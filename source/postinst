@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/opt/opscode/setup.sh
+chown -R root:root /opt/opscode
