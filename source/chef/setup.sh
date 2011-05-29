@@ -56,11 +56,11 @@ if [ "" != "$validation_key" ]; then
   chmod 600 /etc/chef/validation.pem
 fi
 
-ln -sf /opt/opscode/bin/chef-client /usr/local/bin || error_exit "Cannot link chef-client to /usr/local/bin"
-ln -sf /opt/opscode/bin/chef-solo /usr/local/bin || error_exit "Cannot link chef-solo to /usr/local/bin"
-ln -sf /opt/opscode/bin/knife /usr/local/bin || error_exit "Cannot link knife to /usr/local/bin"
-ln -sf /opt/opscode/bin/shef /usr/local/bin || error_exit "Cannot link shef to /usr/local/bin"
-ln -sf /opt/opscode/bin/ohai /usr/local/bin || error_exit "Cannot link ohai to /usr/local/bin"
+ln -sf /opt/opscode/bin/chef-client /usr/bin || error_exit "Cannot link chef-client to /usr/bin"
+ln -sf /opt/opscode/bin/chef-solo /usr/bin || error_exit "Cannot link chef-solo to /usr/bin"
+ln -sf /opt/opscode/bin/knife /usr/bin || error_exit "Cannot link knife to /usr/bin"
+ln -sf /opt/opscode/bin/shef /usr/bin || error_exit "Cannot link shef to /usr/bin"
+ln -sf /opt/opscode/bin/ohai /usr/bin || error_exit "Cannot link ohai to /usr/bin"
 
 echo "Thank you for installing Chef!"
 
