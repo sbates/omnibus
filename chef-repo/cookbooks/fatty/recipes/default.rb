@@ -63,7 +63,6 @@ execute "build-chef-full" do
   cwd "/tmp/fatty"
   environment "LEIN_ROOT" => "1", "LEIN_HOME" => "/tmp/fatty/.lein"
   command "lein run --project-name 'chef-full'"
-  not_if { File.exists?("/tmp/fatty/pkg/chef-full-0.10.0-#{node[:platform]}-#{node[:platform_version]}-#{node[:kernel][:machine]}.sh") }
 end
 
 ruby_block "store in s3" do
