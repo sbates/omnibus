@@ -20,7 +20,7 @@
 (software "chef" :source "chef"
           :steps [
                   {:command "/opt/opscode/embedded/bin/gem"
-                   :args ["install" "chef" "--version 0.10.0" "-n" "/opt/opscode/bin"
+                   :args ["install" "chef" "--version" "0.10.0" "-n" "/opt/opscode/bin"
                           "--no-rdoc" "--no-ri"
                           "--" "--with-xml2-include=/opt/opscode/embedded/include/libxml2"
                           "--with-xml2-lib=/opt/opscode/embedded/lib"]}
