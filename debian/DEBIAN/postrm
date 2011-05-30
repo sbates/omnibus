@@ -1,8 +1,0 @@
-#!/bin/bash
-
-rm /usr/bin/chef-client
-rm /usr/bin/chef-solo
-rm /usr/bin/shef
-rm /usr/bin/knife
-rm /usr/bin/ohai
-
