@@ -47,6 +47,7 @@
 (defstruct build-desc
   :name
   :version
+  :iteration
   :build-order)
  
 (defn software
@@ -57,8 +58,8 @@
 
 (defn project
   "Create a new project"
-  [project-name version & build-vals]
-  (apply struct-map build-desc (conj build-vals project-name :name version :version)))
+  [project-name version iteration & build-vals]
+  (apply struct-map build-desc (conj build-vals project-name :name version :version iteration :iteration)))
 
 (defn- load-forms
   "Load DSL configurations from specified directory"
@@ -89,34 +90,34 @@
 
 (defn build-deb
   "Builds a deb"
-  [project-name version os-data]
-  (let [status (sh "fpm" "-s" "dir" "-t" "deb" "-v" version "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg") ]
+  [project-name version iteration os-data]
+  (let [status (sh "fpm" "-s" "dir" "-t" "deb" "-v" version "--iteration" iteration "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg") ]
     (log-sh-result status
                    (str "Created debian package")
                    (str "Failed to create debian package"))))
 
 (defn build-rpm
   "Builds a rpm"
-  [project-name version os-data]
-  (let [status (sh "fpm" "-s" "dir" "-t" "rpm" "-v" version "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg")]
+  [project-name version iteration os-data]
+  (let [status (sh "fpm" "-s" "dir" "-t" "rpm" "-v" version "--iteration" iteration "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg")]
     (log-sh-result status
                    (str "Created rpm package")
                    (str "Failed to create rpm package"))))
 
 (defn build-tarball
   "Builds a tarball of the entire mess"
-  [project-name version os-data]
-  (let [status (sh "tar" "czf" (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".tar.gz")) "opscode" :dir "/opt")]
+  [project-name version iteration os-data]
+  (let [status (sh "tar" "czf" (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" iteration "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".tar.gz")) "opscode" :dir "/opt")]
     (log-sh-result status
                    (str "Created tarball package for " project-name " on " (os-data :platform) " " (os-data :platform_version) " " (os-data :machine))
                    (str "Failed to create tarball package for " project-name " on " (os-data :os) " " (os-data :machine)))))
 
 (defn build-makeself
-  [project-name version os-data]
+  [project-name version iteration os-data]
   (let [status (sh (.toString (file-str *fatty-makeself-dir* "/makeself.sh")) 
                    "--gzip" 
                    "/opt/opscode" 
-                   (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".sh"))
+                   (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" iteration "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".sh"))
                    (str "'Opscode " project-name " " version "'")
                    "./setup.sh"
                    :dir *fatty-home-dir*)]
@@ -147,12 +148,12 @@
           (do
             (println (str "Can't find project '" project-name "'!"))
             (System/exit -2))))
-      (build-tarball project-name ((projects project-name) :version) os-and-machine)
-      (build-makeself project-name ((projects project-name) :version) os-and-machine)
+      (build-tarball project-name ((projects project-name) :version) ((projects project-name) :iteration) os-and-machine)
+      (build-makeself project-name ((projects project-name) :version) ((projects project-name) :iteration) os-and-machine)
       (if (or (= (os-and-machine :platform) "debian") (= (os-and-machine :platform) "ubuntu"))
-        (build-deb project-name ((projects project-name) :version) os-and-machine))
+        (build-deb project-name ((projects project-name) :version) ((projects project-name) :iteration) os-and-machine))
       (if (or (= (os-and-machine :platform) "redhat") (= (os-and-machine :platform) "centos") (= (os-and-machine :platform) "fedora"))
-        (build-rpm project-name ((projects project-name) :version) os-and-machine)))))
+        (build-rpm project-name ((projects project-name) :version) ((projects project-name) :iteration) os-and-machine)))))
 
 (defn -main
   "Main entry point when run from command line"
