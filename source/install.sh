@@ -1,5 +1,7 @@
 #!/bin/bash
 
+use_shell=0
+
 # Check whether a command exists - returns 0 if it does, 1 if it does not
 exists() {
   if command -v $1 &>/dev/null
@@ -50,7 +52,7 @@ shift `expr $OPTIND - 1`
 
 machine=$(echo -e `uname -m`)
 
-if [ -f "/etc/lsb_release" ];
+if [ -f "/etc/lsb-release" ];
 then
   platform=$(cat /etc/lsb-release | grep DISTRIB_ID | cut -d "=" -f 2 | tr '[A-Z]' '[a-z]')
   platform_version=$(cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d "=" -f 2)
@@ -68,9 +70,7 @@ then
   platform_version=$(echo -e `cat /etc/system-release` | perl -pi -e 's/^.+ release ([\d\.]+).*/$1/' | tr '[A-Z]' '[a-z]')
 fi
 
-set_version
-
-if $use_shell;
+if [ $use_shell = 1 ];
 then
   shell_filename
 else
@@ -93,7 +93,7 @@ else
   then
     curl -s http://s3.amazonaws.com/opscode-full-stack/$platform-$platform_version-$machine/$filename > /tmp/$filename
   else
-    echo "Cannot find wget or curl - cannot install chef!"
+    echo "Cannot find wget or curl - cannot install Chef!"
   fi
 fi
 
@@ -103,4 +103,3 @@ case "$filetype" in
   "deb") dpkg -i /tmp/$filename ;;
   "sh" ) bash /tmp/$filename ;;
 esac
-  
