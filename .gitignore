@@ -6,3 +6,5 @@ pom.xml
 /lib/
 /pkg/
 /redhat/BUILDROOT/
+/build-output/*
+/chef-repo/build-output/*

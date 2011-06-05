@@ -70,6 +70,31 @@ then
   platform_version=$(echo -e `cat /etc/system-release` | perl -pi -e 's/^.+ release ([\d\.]+).*/$1/' | tr '[A-Z]' '[a-z]')
 fi
 
+if [ -z "$version" ];
+then
+  echo "Determining latest version for $platform $platform_version ..."
+  if exists wget;
+  then
+    wget -q -O /tmp/chef-LATEST http://s3.amazonaws.com/opscode-full-stack/$platform-$platform_version-$machine/LATEST 
+  else
+    if exists curl;
+    then
+      curl -s http://s3.amazonaws.com/opscode-full-stack/$platform-$platform_version-$machine/LATEST > /tmp/chef-LATEST
+    else
+      echo "Cannot find wget or curl - cannot install Chef!"
+      exit 5
+    fi
+  fi
+  version=$(echo -e `cat /tmp/chef-LATEST`)
+fi
+
+if [ -z "$version" ];
+then
+  echo "Cannot find a latest version for $platform $platform_version!"
+  echo "Perhaps try specifying one with -v?"
+  exit 1
+fi
+
 if [ $use_shell = 1 ];
 then
   shell_filename
@@ -87,13 +112,14 @@ echo "Downloading Chef $version for $platform $platform_version ..."
 
 if exists wget; 
 then
-  wget -q -O /tmp/$filename http://s3.amazonaws.com/opscode-full-stack/$platform-$platform_version-$machine/$filename
+  wget -O /tmp/$filename http://s3.amazonaws.com/opscode-full-stack/$platform-$platform_version-$machine/$filename
 else
   if exists curl;
   then
-    curl -s http://s3.amazonaws.com/opscode-full-stack/$platform-$platform_version-$machine/$filename > /tmp/$filename
+    curl http://s3.amazonaws.com/opscode-full-stack/$platform-$platform_version-$machine/$filename > /tmp/$filename
   else
     echo "Cannot find wget or curl - cannot install Chef!"
+    exit 5
   fi
 fi
 
