@@ -79,6 +79,14 @@ hosts_to_build = {
     "ssh_user" => "root",
     "ssh_key_name" => "fatty"
   },
+  'redhat-5.6-i686' => {
+    "provider" => "ec2",
+    "image" => "ami-4828d121",
+    "flavor" => "m1.small",
+    "distro" => "centos5-gems",
+    "ssh_user" => "root",
+    "ssh_key_name" => "fatty"
+  },
 }
 
 def terminate_instance(host_type)
@@ -167,6 +175,7 @@ hosts_to_build.each do |host_type, host_data|
       Chef::Config[:knife][:image] = host_data["image"]
       Chef::Config[:knife][:distro] = host_data["distro"]
       Chef::Config[:knife][:aws_ssh_key_id] = host_data["ssh_key_name"]
+      r.config[:security_groups] = [ "fatty" ]
       r.config[:flavor] = host_data["flavor"]
       r.config[:image] = host_data["image"]
       r.config[:distro] = host_data["distro"]

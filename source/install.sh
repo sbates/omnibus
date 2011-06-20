@@ -63,6 +63,10 @@ then
 elif [ -f "/etc/redhat-release" ];
 then
   platform=$(echo -e `cat /etc/redhat-release` | perl -pi -e 's/^(.+) release.+/$1/' | tr '[A-Z]' '[a-z]')
+  if [ "$platform" = "redhat enterprise linux server" ];
+  then
+    platform="redhat"
+  fi
   platform_version=$(echo -e `cat /etc/redhat-release` | perl -pi -e 's/^.+ release ([\d\.]+).*/$1/' | tr '[A-Z]' '[a-z]')
 elif [ -f "/etc/system-release" ];
 then
