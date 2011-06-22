@@ -25,6 +25,9 @@
        (is-os? "linux")
        { "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
          "LDFLAGS" "-Wl,-rpath /opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
+       (is-os? "solaris2")
+       { "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+         "LDFLAGS" "-Wl,-rpath /opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
        )
       ]
   (software "ruby"

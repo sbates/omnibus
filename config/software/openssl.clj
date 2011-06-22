@@ -32,6 +32,7 @@
                                }
                               true
                               {
+                                :env {"LD_RUN_PATH" "/opt/opscode/embedded/lib"}
                                 :command "./config"
                                 :args ["--prefix=/opt/opscode/embedded"
                                        "--with-zlib-lib=/opt/opscode/embedded/lib"
