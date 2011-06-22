@@ -1,19 +1,19 @@
 h2. Introduction 
 
-Fatty helps you build self-installing, full-stack software builds.  For
+omnibus helps you build self-installing, full-stack software builds.  For
 example, we want to distribute the Chef client pre-bundled with its
 dependencies: ruby, required gems, etc.  The result is a single installable
 shell-script that can be executed on the client side, installing Chef, and
 configuring it.
 
-Fatty starts with the idea of a "project", which is comprised of a name,
+omnibus starts with the idea of a "project", which is comprised of a name,
 version, and a build order.  The build order references various "software"
 packages, which are compiled and installed to a specific path on the
 filesystem. (For the chef-full project, this would be /opt/opscode).  
 
-h2. Using Fatty
+h2. Using omnibus
 
-To start using fatty, you need a few dependencies:
+To start using omnibus, you need a few dependencies:
 
 * Java - either the Sun JDK, or the Open JDK
 * Leiningen
@@ -25,19 +25,19 @@ Once you have Leiningen installed, run:
 
 $ lein deps
 
-From the top of the fatty source tree.
+From the top of the omnibus source tree.
 
 To start a build:
 (make sure the project includes the 'prep' step which will create the appropriate directories)
 
 $ lein repl
-fatty.core=> (build-fat-binary "chef-full")
+omnibus.core=> (build-fat-binary "chef-full")
 
 The results will be in ./pkg when the build is complete.
 
-h2. Adding software to fatty
+h2. Adding software to omnibus
 
-To add new software to fatty, you want to extract it and commit the source in the './source' directory.  Then add a configuration to config/software.  For example, to build gdbm:
+To add new software to omnibus, you want to extract it and commit the source in the './source' directory.  Then add a configuration to config/software.  For example, to build gdbm:
 
   1. Download the source for gdbm-1.8.3
   2. Unpacked it in ./source

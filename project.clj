@@ -17,9 +17,9 @@
 ;; limitations under the License.
 ;;
 
-(defproject fatty "0.1.0"
-  :description "Builds 'fat' binaries, with all their dependencies, into tarballs and self-installing shell scripts."
-  :main fatty.core
+(defproject omnibus "0.1.0"
+  :description "Builds 'omnibus' binaries, with all their dependencies, into tarballs and self-installing shell scripts."
+  :main omnibus
   :shell-wrapper true 
   :dev-dependencies [[vimclojure/server "2.2.0-SNAPSHOT"]
                      [swank-clojure "1.3.0-SNAPSHOT"]]
