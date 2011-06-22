@@ -31,6 +31,6 @@
                    :args [ "-pi" "-e" "s/^(LIBXSLT_VERSION_SCRIPT = \\$.+)/\\# Woof/g"
                            (str *omnibus-build-dir* "/libxslt-1.1.26/libxslt/Makefile") ]}
                   {:command (if (is-os? "solaris2") "perl" "true")
-                   :args [ "-pi" "-e" "s/^#LIBXSLT_VERSION_SCRIPT.+)/LIBXSLT_VERSION_SCRIPT =/g" 
+                   :args [ "-pi" "-e" "s/^(#LIBXSLT_VERSION_SCRIPT.+)/LIBXSLT_VERSION_SCRIPT =/g" 
                            (str *omnibus-build-dir* "/libxslt-1.1.26/libxslt/Makefile") ]}
                   {:command "make" :args ["install"]}])
