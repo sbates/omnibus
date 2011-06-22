@@ -1,5 +1,5 @@
-(ns fatty.test.core
-  (:use [fatty.core] :reload-all)
+(ns omnibus.test.core
+  (:use [omnibus] :reload-all)
   (:use [clojure.test]))
 
 (deftest replace-me ;; FIXME: write
