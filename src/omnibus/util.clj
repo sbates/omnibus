@@ -17,8 +17,8 @@
 ;; limitations under the License.
 ;;
 
-(ns fatty.util
-  (:use [fatty.log]
+(ns omnibus.util
+  (:use [omnibus.log]
         [clojure.java.shell :only [sh]]
         [clojure.contrib.io :only [make-parents file-str]] )
   (:require [clojure.contrib.string :as str])

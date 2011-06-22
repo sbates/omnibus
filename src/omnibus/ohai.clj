@@ -17,8 +17,8 @@
 ;; limitations under the License.
 ;;
 
-(ns fatty.ohai
-  (:use [fatty.log]
+(ns omnibus.ohai
+  (:use [omnibus.log]
         [clojure.contrib.json]
         [clojure.contrib.logging :only [log]]
         [clojure.contrib.io :only [make-parents file-str]]

@@ -17,12 +17,12 @@
 ;; limitations under the License.
 ;;
 
-(ns fatty.core
-  (:use [fatty.ohai]
-        [fatty.steps]
-        [fatty.log]
-        [fatty.util]
-        [fatty.s3]
+(ns omnibus.core
+  (:use [omnibus.ohai]
+        [omnibus.steps]
+        [omnibus.log]
+        [omnibus.util]
+        [omnibus.s3]
         [clojure.java.shell :only [sh]]
         [clojure.contrib.logging :only [log]]        
         [clojure.contrib.json]
@@ -31,14 +31,14 @@
   (:require [clojure.contrib.string :as str])
   (:gen-class))
 
-(def *fatty-home-dir* (. System getProperty "user.dir"))
-(def *fatty-source-dir* (file-str *fatty-home-dir* "/source"))
-(def *fatty-software-dir* (file-str *fatty-home-dir* "/config/software"))
-(def *fatty-projects-dir* (file-str *fatty-home-dir* "/config/projects"))
-(def *fatty-build-dir* (file-str *fatty-home-dir* "/build"))
-(def *fatty-pkg-dir* (file-str *fatty-home-dir* "/pkg"))
-(def *fatty-makeself-dir* (file-str *fatty-home-dir* "/makeself"))
-(def *fatty-bin-dir* (file-str *fatty-home-dir* "/bin"))
+(def *omnibus-home-dir* (. System getProperty "user.dir"))
+(def *omnibus-source-dir* (file-str *omnibus-home-dir* "/source"))
+(def *omnibus-software-dir* (file-str *omnibus-home-dir* "/config/software"))
+(def *omnibus-projects-dir* (file-str *omnibus-home-dir* "/config/projects"))
+(def *omnibus-build-dir* (file-str *omnibus-home-dir* "/build"))
+(def *omnibus-pkg-dir* (file-str *omnibus-home-dir* "/pkg"))
+(def *omnibus-makeself-dir* (file-str *omnibus-home-dir* "/makeself"))
+(def *omnibus-bin-dir* (file-str *omnibus-home-dir* "/bin"))
 
 (def *bucket-name* (atom ""))
 (def *s3-access-key* (atom ""))
@@ -73,7 +73,7 @@
   (for [file-name (map file-str (.listFiles directory))]
     (with-in-str (slurp file-name)
       (let [eval-form (read)]
-        (eval `(do (use 'fatty.core 'fatty.ohai)  ~eval-form))))))
+        (eval `(do (use 'omnibus.core 'omnibus.ohai)  ~eval-form))))))
 
 ;; NOTE: we could simply load-file above, but at some point we'll want multiple forms
 ;; in a file and we'll want to iterate over them using load-reader & eval to collect their output
@@ -82,16 +82,16 @@
   "Build a software package - runs prep for you"
   [soft]
   (do
-    (clean *fatty-build-dir* soft)
-    (prep *fatty-build-dir* *fatty-source-dir* soft)
-    (run-steps *fatty-build-dir* soft)))
+    (clean *omnibus-build-dir* soft)
+    (prep *omnibus-build-dir* *omnibus-source-dir* soft)
+    (run-steps *omnibus-build-dir* soft)))
 
 (defn build-software-by-name
   "Build a software package by name, rather than by clojure form"
   [software-name]
   (log :info (str "Building " software-name))
   (let [mapper #(assoc %1 (%2 :name) %2)
-        software-descs (reduce mapper  {}  (load-forms *fatty-software-dir*))]
+        software-descs (reduce mapper  {}  (load-forms *omnibus-software-dir*))]
     (build-software (software-descs software-name))))
 
 (defn build-deb
@@ -99,7 +99,7 @@
   [project-name version iteration os-data]
   (let [
         asset-name (str project-name "-" version "-" iteration "." (if (= (os-data :machine) "x86_64") "amd64" "i386") ".deb")
-        asset-path (.toString (file-str *fatty-pkg-dir* "/" asset-name))
+        asset-path (.toString (file-str *omnibus-pkg-dir* "/" asset-name))
         status (sh "fpm" "-s" "dir" "-t" "deb" "-v" version "--iteration" iteration "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg") ]
     (log-sh-result status
                    (do
@@ -112,7 +112,7 @@
   [project-name version iteration os-data]
   (let [
         asset-name (str project-name "-" version "-" iteration "." (os-data :machine) ".rpm")
-        asset-path (.toString (file-str *fatty-pkg-dir* "/" asset-name))
+        asset-path (.toString (file-str *omnibus-pkg-dir* "/" asset-name))
         status (sh "fpm" "-s" "dir" "-t" "rpm" "-v" version "--iteration" iteration "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg")]
     (log-sh-result status
                    (do
@@ -125,7 +125,7 @@
   [project-name version iteration os-data]
   (let [
         asset-name (str project-name "-" version "-" iteration "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".tar.gz")
-        asset-path (.toString (file-str *fatty-pkg-dir* "/" asset-name))
+        asset-path (.toString (file-str *omnibus-pkg-dir* "/" asset-name))
         status (sh "tar" "czf" asset-path "opscode" :dir "/opt")]
     (log-sh-result status
                    (do
@@ -137,14 +137,14 @@
   [project-name version iteration os-data]
   (let [ 
         asset-name (str project-name "-" version "-" iteration "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".sh")
-        asset-path (.toString (file-str *fatty-pkg-dir* "/" asset-name))
-        status (sh (.toString (file-str *fatty-makeself-dir* "/makeself.sh")) 
+        asset-path (.toString (file-str *omnibus-pkg-dir* "/" asset-name))
+        status (sh (.toString (file-str *omnibus-makeself-dir* "/makeself.sh")) 
                    "--gzip" 
                    "/opt/opscode" 
                    asset-path
                    (str "'Opscode " project-name " " version "'")
                    "./setup.sh"
-                   :dir *fatty-home-dir*)]
+                   :dir *omnibus-home-dir*)]
     (log-sh-result status
                    (do
                      (put-in-bucket asset-path @*bucket-name* (str (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) "/" asset-name) @*s3-access-key* @*s3-secret-key*) 
@@ -165,8 +165,8 @@
   "Build a fat binary"
   [project-name]
   (let [mapper #(assoc %1 (%2 :name) %2)
-        software-descs (reduce mapper  {}  (load-forms *fatty-software-dir*))
-        projects  (reduce mapper {} (load-forms *fatty-projects-dir*))]
+        software-descs (reduce mapper  {}  (load-forms *omnibus-software-dir*))
+        projects  (reduce mapper {} (load-forms *omnibus-projects-dir*))]
     (do
       (try
         (build-project (projects project-name) software-descs)

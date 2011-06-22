@@ -17,23 +17,22 @@
 ;; limitations under the License.
 ;;
 
-(ns fatty.s3
-  (:use [fatty.log]
-        [clojure.contrib.logging :only [log]])
-  (:import [org.jets3t.service.security AWSCredentials]
-           [org.jets3t.service.impl.rest.httpclient RestS3Service]
-           [org.jets3t.service.acl AccessControlList]
-           [java.io File]
-           [org.jets3t.service.model S3Object])
+(ns omnibus.log
+  (:use [clojure.contrib.logging :only [log]])
+  (:require [clojure.contrib.string :as str])
   (:gen-class))
 
-(defn put-in-bucket
-  "Place the resulting file in an S3 bucket"
-  [filename bucket-name file-key access-key secret-access-key]
-  (let [s3 (RestS3Service. (AWSCredentials. access-key secret-access-key))
-       s3obj (S3Object. (File. filename))
-       s3bucket (. s3 getBucket bucket-name)]
-    (. s3obj setAcl AccessControlList/REST_CANNED_PUBLIC_READ)
-    (. s3obj setKey file-key)
-    (. s3 putObject s3bucket s3obj)))
-
+(defn log-sh-result
+  [status true-log false-log]
+  (if (zero? (status :exit))
+    (do
+      (log :info true-log)
+      ;; (log :info (status :exit))
+      ;; (log :info (status :out))
+      ;; (log :info (status :err))      
+      true)
+    (do
+      (log :error false-log)
+      (log :error (str "STDOUT: " (status :out)))
+      (log :error (str "STDERR: " (status :err)))
+      (System/exit 2))))

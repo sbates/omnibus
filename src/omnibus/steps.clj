@@ -17,8 +17,8 @@
 ;; limitations under the License.
 ;;
 
-(ns fatty.steps
-  (:use [fatty.log]
+(ns omnibus.steps
+  (:use [omnibus.log]
         [clojure.contrib.logging :only [log]]
         [clojure.contrib.io :only [make-parents file-str]]
         [clojure.contrib.str-utils :only [str-join]]
