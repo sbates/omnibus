@@ -27,4 +27,10 @@
                    :args ["--prefix=/opt/opscode/embedded" "--with-libxml-prefix=/opt/opscode/embedded"
                           "--with-libxml-include-prefix=/opt/opscode/embedded/include"
                           "--with-libxml-libs-prefix=/opt/opscode/embedded/lib"]}
+                  {:command (if (is-os? "solaris2") "perl" "true")
+                   :args [ "-pi" "-e" "s/^(LIBXSLT_VERSION_SCRIPT = \$.+)$/\# Woof/g" 
+                           (str *omnibus-build-dir* "/libxslt-1.1.26/libxslt/Makefile") ]}
+                  {:command (if (is-os? "solaris2") "perl" "true")
+                   :args [ "-pi" "-e" "s/^#LIBXSLT_VERSION_SCRIPT.+)$/LIBXSLT_VERSION_SCRIPT =/g" 
+                           (str *omnibus-build-dir* "/libxslt-1.1.26/libxslt/Makefile") ]}
                   {:command "make" :args ["install"]}])
