@@ -22,6 +22,7 @@
         [fatty.steps]
         [fatty.log]
         [fatty.util]
+        [fatty.s3]
         [clojure.java.shell :only [sh]]
         [clojure.contrib.logging :only [log]]        
         [clojure.contrib.json]
@@ -37,6 +38,11 @@
 (def *fatty-build-dir* (file-str *fatty-home-dir* "/build"))
 (def *fatty-pkg-dir* (file-str *fatty-home-dir* "/pkg"))
 (def *fatty-makeself-dir* (file-str *fatty-home-dir* "/makeself"))
+(def *fatty-bin-dir* (file-str *fatty-home-dir* "/bin"))
+
+(def *bucket-name* (atom ""))
+(def *s3-access-key* (atom ""))
+(def *s3-secret-key* (atom ""))
 
 (defstruct software-desc
   :name
@@ -91,38 +97,58 @@
 (defn build-deb
   "Builds a deb"
   [project-name version iteration os-data]
-  (let [status (sh "fpm" "-s" "dir" "-t" "deb" "-v" version "--iteration" iteration "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg") ]
+  (let [
+        asset-name (str project-name "-" version "-" iteration "." (if (= (os-data :machine) "x86_64") "amd64" "i386") ".deb")
+        asset-path (.toString (file-str *fatty-pkg-dir* "/" asset-name))
+        status (sh "fpm" "-s" "dir" "-t" "deb" "-v" version "--iteration" iteration "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg") ]
     (log-sh-result status
-                   (str "Created debian package")
+                   (do
+                     (put-in-bucket asset-path @*bucket-name* (str (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) "/" asset-name) @*s3-access-key* @*s3-secret-key*) 
+                     (str "Created debian package"))
                    (str "Failed to create debian package"))))
 
 (defn build-rpm
   "Builds a rpm"
   [project-name version iteration os-data]
-  (let [status (sh "fpm" "-s" "dir" "-t" "rpm" "-v" version "--iteration" iteration "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg")]
+  (let [
+        asset-name (str project-name "-" version "-" iteration "." (os-data :machine) ".rpm")
+        asset-path (.toString (file-str *fatty-pkg-dir* "/" asset-name))
+        status (sh "fpm" "-s" "dir" "-t" "rpm" "-v" version "--iteration" iteration "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg")]
     (log-sh-result status
-                   (str "Created rpm package")
+                   (do
+                     (put-in-bucket asset-path @*bucket-name* (str (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) "/" asset-name) @*s3-access-key* @*s3-secret-key*) 
+                     (str "Created rpm package"))
                    (str "Failed to create rpm package"))))
 
 (defn build-tarball
   "Builds a tarball of the entire mess"
   [project-name version iteration os-data]
-  (let [status (sh "tar" "czf" (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" iteration "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".tar.gz")) "opscode" :dir "/opt")]
+  (let [
+        asset-name (str project-name "-" version "-" iteration "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".tar.gz")
+        asset-path (.toString (file-str *fatty-pkg-dir* "/" asset-name))
+        status (sh "tar" "czf" asset-path "opscode" :dir "/opt")]
     (log-sh-result status
-                   (str "Created tarball package for " project-name " on " (os-data :platform) " " (os-data :platform_version) " " (os-data :machine))
+                   (do
+                     (put-in-bucket asset-path @*bucket-name* (str (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) "/" asset-name) @*s3-access-key* @*s3-secret-key*) 
+                     (str "Created tarball package for " project-name " on " (os-data :platform) " " (os-data :platform_version) " " (os-data :machine)))
                    (str "Failed to create tarball package for " project-name " on " (os-data :os) " " (os-data :machine)))))
 
 (defn build-makeself
   [project-name version iteration os-data]
-  (let [status (sh (.toString (file-str *fatty-makeself-dir* "/makeself.sh")) 
+  (let [ 
+        asset-name (str project-name "-" version "-" iteration "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".sh")
+        asset-path (.toString (file-str *fatty-pkg-dir* "/" asset-name))
+        status (sh (.toString (file-str *fatty-makeself-dir* "/makeself.sh")) 
                    "--gzip" 
                    "/opt/opscode" 
-                   (.toString (file-str *fatty-pkg-dir* "/" project-name "-" version "-" iteration "-" (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) ".sh"))
+                   asset-path
                    (str "'Opscode " project-name " " version "'")
                    "./setup.sh"
                    :dir *fatty-home-dir*)]
     (log-sh-result status
-                   (str "Created shell archive for " project-name " on " (os-data :platform) " " (os-data :platform_version) " " (os-data :machine))
+                   (do
+                     (put-in-bucket asset-path @*bucket-name* (str (os-data :platform) "-" (os-data :platform_version) "-" (os-data :machine) "/" asset-name) @*s3-access-key* @*s3-secret-key*) 
+                     (str "Created shell archive for " project-name " on " (os-data :platform) " " (os-data :platform_version) " " (os-data :machine)))
                    (str "Failed to create shell archive for " project-name " on " (os-data :platform) " " (os-data :platform_version) " " (os-data :machine)))))
 
 (defn build-project
@@ -160,6 +186,13 @@
   [& args]
   (with-command-line args
     "Specify the project you'd like me to build..."
-    [[project-name "The name of the project to build"]]
+    [[project-name "The name of the project to build"]
+     [bucket-name "The S3 Bucket Name"]
+     [s3-access-key "The S3 Access Key"]
+     [s3-secret-key "The S3 Secret Key"]]
+    (reset! *bucket-name* bucket-name)
+    (reset! *s3-access-key* s3-access-key)
+    (reset! *s3-secret-key* s3-secret-key)
+
     (build-fat-binary project-name)))
 

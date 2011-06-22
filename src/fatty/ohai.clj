@@ -41,6 +41,11 @@
   [& ohai-keys]
   (get-in (ohai) ohai-keys))
 
+(defn is-platform?
+  "Returns true if the current platform matches the argument"
+  [to-check]
+  (= (os-and-machine :platform) to-check))
+
 (defn is-os?
   "Returns true if the current OS matches the argument"
   [to-check]
