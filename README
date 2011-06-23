@@ -66,6 +66,41 @@ The build order will run in order.
 
 Enjoy!
 
+h2. The full build process
+
+If you want to kick off a full build, the easiest way is with:
+
+  $ sudo lein run --project-name "chef-full" --bucket-name FULL_STACK --s3-access-key "ACCESS_KEY" --s3-secret-key "SECRET_KEY"                                             
+
+The resulting build artifact will be dropped off in the S3 bucket named above. If you want to submit a build to us, drop it off in your own bucket, and let us know where and how to test the final product.
+
+h2. Operating System Prep
+
+h3. SL 6
+
+    yum update -y
+    yum install -y gcc gcc-c++ kernel-devel make autoconf flex bison git java-1.6.0-openjdk java-1.6.0-openjdk-devel ruby ruby-libs ruby-devel ruby-docs ruby-ri ruby-irb ruby-rdoc ruby-mode rubygems rpm-build libxml2 libxml2-devel libxslt libxslt-devel wget automake help2man libtool gettext texinfo
+    gem install fpm ohai --no-rdoc --no-ri
+    wget https://github.com/technomancy/leiningen/raw/stable/bin/lein && mv lein /usr/local/bin && chmod 755 /usr/local/bin/lein
+    git clone git://github.com/adamhjk/omnibus.git
+    cd omnibus
+    mkdir build
+    lein deps
+
+h3. Debian 6
+    
+    apt-get update -y
+    apt-get -y install build-essential binutils-doc autoconf flex bison git-core openjdk-6-jdk default-jdk ruby ruby1.8 ruby1.8-dev rdoc1.8 irb1.8 ri1.8 libopenssl-ruby1.8 rubygems libtool dpkg-dev libxml2 libxml2-dev libxslt1.1 libxslt1-dev help2man
+    update-java-alternatives -s java-6-openjdk
+    gem install fpm ohai --no-rdoc --no-ri
+    ln -s /var/lib/gems/1.8/bin/* /usr/local/bin
+    wget https://github.com/technomancy/leiningen/raw/stable/bin/lein && mv lein /usr/local/bin && chmod 755 /usr/local/bin/lein
+    git clone git://github.com/adamhjk/omnibus.git
+    cd omnibus
+    mkdir build
+    lein deps
+    
+
 h2. Bundled software and licensing
 
 All software under the "source" directory retains the license by which it was originally distributed.

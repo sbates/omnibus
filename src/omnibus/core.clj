@@ -98,7 +98,7 @@
   "Builds a deb"
   [project-name version iteration os-data]
   (let [
-        asset-name (str project-name "-" version "-" iteration "." (if (= (os-data :machine) "x86_64") "amd64" "i386") ".deb")
+        asset-name (str project-name "-" version "-" iteration "_" (if (= (os-data :machine) "x86_64") "amd64" "i386") ".deb")
         asset-path (.toString (file-str *omnibus-pkg-dir* "/" asset-name))
         status (sh "fpm" "-s" "dir" "-t" "deb" "-v" version "--iteration" iteration "-n" project-name "/opt/opscode" "-m" "Opscode, Inc." "--post-install" "../source/postinst" "--post-uninstall" "../source/postrm" "--description" "The full stack install of Opscode Chef" "--url" "http://www.opscode.com" :dir "./pkg") ]
     (log-sh-result status

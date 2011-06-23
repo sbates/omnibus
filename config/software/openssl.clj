@@ -30,6 +30,18 @@
                                       "zlib"
                                       "shared"]
                                }
+                              (is-os? "solaris2")
+                              {
+                                :command "./config"
+                                :args ["--prefix=/opt/opscode/embedded"
+                                       "--with-zlib-lib=/opt/opscode/embedded/lib"
+                                       "--with-zlib-include=/opt/opscode/embedded/include"
+                                       "zlib"
+                                       "shared"
+                                       "-L/opt/opscode/embedded/lib"
+                                       "-I/opt/opscode/embedded/include"
+                                       "-R/opt/opscode/embedded/lib"]
+                               }
                               true
                               {
                                 :env {"LD_RUN_PATH" "/opt/opscode/embedded/lib"}
