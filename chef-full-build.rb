@@ -31,7 +31,7 @@ end
 
 build_status = Hash.new
 child_pids = Hash.new
-build_at_a_time = 2 
+build_at_a_time = 3 
 total_hosts = hosts_to_build.keys.length
 current_count = 0 
 total_count = 0
