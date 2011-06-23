@@ -178,7 +178,7 @@
       (build-makeself project-name ((projects project-name) :version) ((projects project-name) :iteration) os-and-machine)
       (if (or (= (os-and-machine :platform) "debian") (= (os-and-machine :platform) "ubuntu"))
         (build-deb project-name ((projects project-name) :version) ((projects project-name) :iteration) os-and-machine))
-      (if (or (= (os-and-machine :platform) "redhat") (= (os-and-machine :platform) "centos") (= (os-and-machine :platform) "fedora"))
+      (if (or (= (os-and-machine :platform) "el") (= (os-and-machine :platform) "fedora"))
         (build-rpm project-name ((projects project-name) :version) ((projects project-name) :iteration) os-and-machine)))))
 
 (defn -main
