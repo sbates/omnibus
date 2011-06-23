@@ -32,7 +32,8 @@
   (let [ohai-data (read-json ((sh "ohai") :out))]
     {:os (get ohai-data :os), 
      :machine (get-in ohai-data [:kernel :machine]),
-     :platform (get ohai-data :platform),
+     :platform (let [ohai-platform (get ohai-data :platform)] 
+                 (if (or (= ohai-platform "scientific") (= ohai-platform "redhat") (= ohai-platform "centos")) "el" ohai-platform)),
      :platform_version (get ohai-data :platform_version)}))
 
 (def ohai (memoize ohai))
