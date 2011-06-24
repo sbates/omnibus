@@ -19,9 +19,6 @@
 
 (software "gdbm" :source "gdbm-1.8.3"
           :steps [{:command "/opt/opscode/embedded/bin/autoconf"}
-                  {:env {"LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
-                         "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
-                   :command "./configure"
-                   :args ["--prefix=/opt/opscode/embedded"]}
+                  {:command "./configure" :args ["--prefix=/opt/opscode/embedded"]}
                   {:command "make" :args ["BINOWN=root" "BINGRP=wheel"]}
                   {:command "make" :args ["install"]}])
