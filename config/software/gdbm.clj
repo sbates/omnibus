@@ -18,7 +18,8 @@
 ;;
 
 (software "gdbm" :source "gdbm-1.8.3"
-          :steps [{:env {"LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
+          :steps [{:command "/opt/opscode/embedded/bin/autoconf"}
+                  {:env {"LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
                          "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
                    :command "./configure"
                    :args ["--prefix=/opt/opscode/embedded"]}
