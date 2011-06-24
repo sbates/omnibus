@@ -17,23 +17,8 @@
 ;; limitations under the License.
 ;;
 
-(let [env
-      (cond
-       (and (is-os? "darwin") (is-machine? "x86_64"))
-       { "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
-         "LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
-       (is-os? "linux")
-       { "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
-         "LDFLAGS" "-Wl,-rpath /opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
-       (is-os? "solaris2")
-       { "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
-         "LDFLAGS" "-Wl,-rpath /opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
-       )
-      ]
-
-  (software "db" :source "db-5.0.26.NC"
-                 :build-subdir "build_unix"
-                 :steps [{:env env
-                          :command "../dist/configure" :args ["--prefix=/opt/opscode/embedded"]}
-                         {:command "make"}
-                         {:command "make" :args ["install"]}]))
+(software "db" :source "db-5.0.26.NC"
+               :build-subdir "build_unix"
+               :steps [{:command "../dist/configure" :args ["--prefix=/opt/opscode/embedded"]}
+                       {:command "make"}
+                       {:command "make" :args ["install"]}])
