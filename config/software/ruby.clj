@@ -34,7 +34,7 @@
             :source "ruby-1.9.2-p180"
             :steps [
                     {:env env
-                     :command "autoconf"
+                     :command "/opt/opscode/embedded/bin/autoconf"
                      }
                     {:env env
                      :command "./configure"
