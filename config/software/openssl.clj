@@ -32,8 +32,9 @@
                                }
                               (is-os? "solaris2")
                               {
-                                :command "./config"
-                                :args ["--prefix=/opt/opscode/embedded"
+                                :command "./Configure"
+                                :args ["solaris-x86-gcc"
+                                       "--prefix=/opt/opscode/embedded"
                                        "--with-zlib-lib=/opt/opscode/embedded/lib"
                                        "--with-zlib-include=/opt/opscode/embedded/include"
                                        "zlib"

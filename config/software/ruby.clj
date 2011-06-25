@@ -27,7 +27,7 @@
          "LDFLAGS" "-Wl,-rpath /opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
        (is-os? "solaris2")
        { "CFLAGS" "-L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"
-         "LDFLAGS" "-Wl,-rpath /opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
+         "LDFLAGS" "-R/opt/opscode/embedded/lib -L/opt/opscode/embedded/lib -I/opt/opscode/embedded/include"}
        )
       ]
   (software "ruby"
@@ -42,5 +42,5 @@
                             "--with-opt-dir=/opt/opscode/embedded"
                             "--enable-shared"
                             "--disable-install-doc"]}
-                    {:command "make"}
+                    {:env env :command "make"}
                     {:command "make" :args ["install"]}]))
