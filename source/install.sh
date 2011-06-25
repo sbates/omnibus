@@ -20,7 +20,7 @@ deb_filename() {
   then
     filename="chef-full_${version}_amd64.deb"
   else
-    filename="chef-full_${version}_${machine}.deb"
+    filename="chef-full_${version}_i386.deb"
   fi
 }
 
@@ -70,7 +70,7 @@ then
   elif [ "$platform" = "centos" ];
   then
     platform="el"
-  elif [ "$platform" = "scientific" ];
+  elif [ "$platform" = "scientific linux" ];
   then
     platform="el"
   fi
@@ -103,9 +103,9 @@ else
   case $platform in
     "ubuntu") deb_filename ;;
     "debian") deb_filename ;;
-    "redhat") rpm_filename ;;
+    "el") rpm_filename ;;
     "fedora") rpm_filename ;;
-    "centos") rpm_filename ;;
+    *) shell_filename ;;
   esac
 fi
 

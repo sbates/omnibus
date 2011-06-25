@@ -150,6 +150,8 @@ h3. Ubuntu 11.04
     mkdir build
     lein deps
 
+h3. FreeBSD 8.2
+
 h2. Bundled software and licensing
 
 All software under the "source" directory retains the license by which it was originally distributed.
