@@ -25,7 +25,7 @@
                           "--" "--with-xml2-include=/opt/opscode/embedded/include/libxml2"
                           "--with-xml2-lib=/opt/opscode/embedded/lib"]}
                   {:command "/opt/opscode/embedded/bin/gem"
-                   :args ["install" "highline" "net-ssh-multi" "knife-ec2" "knife-rackspace" "knife-windows" "knife-openstack" "-n" "/opt/opscode/bin"
+                   :args ["install" "highline" "net-ssh-multi" "knife-ec2" "knife-rackspace" "knife-openstack" "-n" "/opt/opscode/bin"
                           "--no-rdoc" "--no-ri"
                           "--" "--with-xml2-include=/opt/opscode/embedded/include/libxml2"
                           "--with-xml2-lib=/opt/opscode/embedded/lib"]}
